@@ -26,7 +26,7 @@ static void schedule_task(void)
 {
     Active_Task = &Idle;
 
-    LIST_LOOP_EACH(&Task_List, i)
+    LIST_FOR_EACH(&Task_List, i)
     {
         struct task_t * task = (struct task_t *)i;
 

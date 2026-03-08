@@ -1,6 +1,5 @@
-#include "list.h"
-#include <stdint.h>
 #include "test.h"
+#include "list.h"
 
 struct test_t
 {
@@ -22,7 +21,7 @@ static void list_tail_test(void)
     }
 
     uint8_t count = 0u;
-    LIST_LOOP_EACH(&list, i)
+    LIST_FOR_EACH(&list, i)
     {
         struct test_t * test = (struct test_t *)i;
         TEST_EQUAL(test->data, count);
@@ -35,7 +34,7 @@ static void list_tail_test(void)
     }
 
     count = 1u;
-    LIST_LOOP_EACH(&list, i)
+    LIST_FOR_EACH(&list, i)
     {
         struct test_t * test = (struct test_t *)i;
         TEST_EQUAL(test->data, count);
@@ -57,7 +56,7 @@ static void list_head_test(void)
     }
 
     uint8_t count = 15u;
-    LIST_LOOP_EACH(&list, i)
+    LIST_FOR_EACH(&list, i)
     {
         struct test_t * test = (struct test_t *)i;
         TEST_EQUAL(test->data, count);
@@ -70,7 +69,7 @@ static void list_head_test(void)
     }
 
     count = 15u;
-    LIST_LOOP_EACH(&list, i)
+    LIST_FOR_EACH(&list, i)
     {
         struct test_t * test = (struct test_t *)i;
         TEST_EQUAL(test->data, count);

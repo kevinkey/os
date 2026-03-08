@@ -21,6 +21,6 @@ task :test => :build do
 
     Dir.new("test").files(-1, ".c").each do |t|
         exe = program(t)
-        #cmd([exe], "Run #{File.basename(t)}")
+        cmd([exe], "Run #{File.basename(t)}")
     end
 end

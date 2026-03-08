@@ -25,7 +25,7 @@ void list_init(struct list_t * list);
 void list_add(struct list_t * list, struct list_item_t * item, enum list_add_t add);
 void list_del(struct list_t * list, struct list_item_t * item);
 
-#define LIST_LOOP_EACH(l, i)                                                    \
+#define LIST_FOR_EACH(l, i)                                                     \
     for(struct list_item_t * (i) = (l)->head; (i) != NULL; (i) = (i)->next)
 
 #endif
