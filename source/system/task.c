@@ -68,3 +68,8 @@ void task_save(struct task_t * task)
         }
     }
 }
+
+void task_load(struct task_t * task)
+{
+    stack_load(task->STACK);
+}

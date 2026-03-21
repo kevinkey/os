@@ -30,10 +30,6 @@ void task_init(struct task_t * task);
 bool task_wait(struct task_t * task, event_t * event, time_t timeout);
 bool task_ready(struct task_t * task);
 void task_save(struct task_t * task);
-
-static inline void task_load(struct task_t * task)
-{
-    stack_load(task->STACK);
-}
+void task_load(struct task_t * task);
 
 #endif
