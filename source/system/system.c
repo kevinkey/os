@@ -74,3 +74,8 @@ void system_add_task(struct task_t * task)
 
     irq_enable(state);
 }
+
+void system_yield(void)
+{
+    system_tick(0u);
+}
