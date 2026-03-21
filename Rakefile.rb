@@ -24,3 +24,4 @@ task :test => :build do
         cmd([exe], "Run #{File.basename(t)}")
     end
 end
+
