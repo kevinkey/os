@@ -1,26 +1,24 @@
 #include "test.h"
 #include "term.h"
 #include <stdio.h>
+#include <string.h>
 
-void test_puts(char const * str)
+void test_put(char const str[])
 {
-    (void)puts(str);
+    printf("%s", str);
 }
 
-char const * test_gets(void)
+size_t test_get(char str[], size_t length)
 {
-    static char line[80];
-    return fgets(line, sizeof(line), stdin);
+    return strlen(fgets(str, length, stdin));
 }
 
-struct term_t Term =
-{
-    .PUTS = test_puts,
-    .GETS = test_gets,
-};
+struct term_t Term = {.PUT = test_put, .GET = test_get};
 
 int main(void)
 {
     term_init(&Term);
     term_process(&Term);
+
+    exit(EXIT_SUCCESS);
 }
