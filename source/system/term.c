@@ -5,13 +5,11 @@
 
 static void help_cmd(struct term_t * term)
 {
-    term->PUT("Command              | Description\n--------------------------------------------------------------------------------\n");
-
     LIST_FOR_EACH(&term->cmd, i)
     {
         struct term_cmd_t * cmd = (struct term_cmd_t *)i;
 
-        snprintf(term->out, TERM_LINE_SIZE, "%-20s | %s\n", cmd->NAME, cmd->DESC);
+        snprintf(term->out, TERM_LINE_SIZE, "%-20s %s\n", cmd->NAME, cmd->DESC);
         term->PUT(term->out);
     }
 }
@@ -73,7 +71,6 @@ static struct term_cmd_t * find_cmd(struct term_t * term, char const * name)
 
     return cmd;
 }
-
 
 void term_init(struct term_t * term)
 {

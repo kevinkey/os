@@ -31,7 +31,7 @@ bool task_wait(struct task_t * task, event_t * event, time_t timeout)
 
     irq_enable(state);
 
-    return ((task->event != NULL) && event_status(task->event));
+    return ((task->event != NULL) && *(task->event));
 }
 
 bool task_ready(struct task_t * task)
@@ -42,7 +42,7 @@ bool task_ready(struct task_t * task)
     {
         ready = true;
     }
-    else if((task->event != NULL) && event_status(task->event))
+    else if((task->event != NULL) && *(task->event))
     {
         ready = true;
     }

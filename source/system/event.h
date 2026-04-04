@@ -2,22 +2,12 @@
 #define EVENT_H
 
 #include "types.h"
+#include "time.h"
 
 typedef bool event_t;
 
-static inline void event_set(event_t * event)
-{
-    *event = true;
-}
-
-static inline void event_clear(event_t * event)
-{
-    *event = false;
-}
-
-static inline bool event_status(event_t * event)
-{
-    return *event;
-}
+void event_clear(event_t * event);
+void event_set(event_t * event);
+bool event_wait(event_t * event, time_t timeout);
 
 #endif

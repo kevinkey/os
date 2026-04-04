@@ -7,7 +7,7 @@ struct task_t * Active_Task;
 
 static void idle_task(void)
 {
-    while(true)
+    while (true)
     {
         /* do nothing */
     }
