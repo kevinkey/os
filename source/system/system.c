@@ -16,10 +16,12 @@ static void idle_task(void)
 uint_t Stack[STACK_CONTEXT_SIZE];
 struct task_t Idle =
 {
-    .FUNCTION = idle_task,
-    .STACK = Stack,
-    .SIZE = STACK_CONTEXT_SIZE,
-    .PRIORITY = TASK_PRIORITY_LOW
+    .CONFIG = &(struct task_config_t) {
+        .func = idle_task,
+        .stack = Stack,
+        .size = STACK_CONTEXT_SIZE,
+        .priority = TASK_PRIORITY_LOW
+    }
 };
 
 static void schedule_task(void)
@@ -32,7 +34,7 @@ static void schedule_task(void)
 
         if(task_ready(task))
         {
-            if((uint_t)task->PRIORITY > (uint_t)Active_Task->PRIORITY)
+            if((uint_t)task->CONFIG->priority > (uint_t)Active_Task->CONFIG->priority)
             {
                 Active_Task = task;
             }

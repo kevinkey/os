@@ -7,14 +7,14 @@ static uint8_t const Sentinel[] = {0x12u, 0x34u, 0x56u, 0x78u};
 
 void task_init(struct task_t * task)
 {
-    uint8_t * p_stack = (uint8_t *)&(task->STACK[task->SIZE]) - sizeof(Sentinel);
+    uint8_t * stack = (uint8_t *)&(task->CONFIG->stack[task->CONFIG->size]) - sizeof(Sentinel);
 
-    while(p_stack >= (uint8_t *)task->STACK)
+    while(stack >= (uint8_t *)task->CONFIG->stack)
     {
-        memcpy(p_stack, Sentinel, sizeof(Sentinel));
-        p_stack -= sizeof(Sentinel);
+        memcpy(stack, Sentinel, sizeof(Sentinel));
+        stack -= sizeof(Sentinel);
     }
-    stack_init(task->STACK, task->FUNCTION);
+    stack_init(task->CONFIG->stack, task->CONFIG->func);
 
     task->event = NULL;
     system_add_task(task);
@@ -56,9 +56,9 @@ bool task_ready(struct task_t * task)
 
 void task_save(struct task_t * task)
 {
-    stack_save(task->STACK);
+    stack_save(task->CONFIG->stack);
 
-    uint8_t * p_stack = (uint8_t *)&(task->STACK[task->SIZE]) - sizeof(Sentinel);
+    uint8_t * p_stack = (uint8_t *)&(task->CONFIG->stack[task->CONFIG->size]) - sizeof(Sentinel);
 
     if(0 != memcmp(p_stack, Sentinel, sizeof(Sentinel)))
     {
@@ -71,5 +71,5 @@ void task_save(struct task_t * task)
 
 void task_load(struct task_t * task)
 {
-    stack_load(task->STACK);
+    stack_load(task->CONFIG->stack);
 }

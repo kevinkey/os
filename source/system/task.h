@@ -15,13 +15,18 @@ enum task_priority_t
     TASK_PRIORITY_CRITICAL
 };
 
+struct task_config_t
+{
+    void (*func)(void);
+    uint_t * stack;
+    uint_t size;
+    enum task_priority_t priority;
+};
+
 struct task_t
 {
     struct list_item_t item;
-    void (*FUNCTION)(void);
-    uint_t * STACK;
-    uint_t SIZE;
-    enum task_priority_t PRIORITY;
+    struct task_config_t const * CONFIG;
     event_t * event;
     time_t timeout;
 };
