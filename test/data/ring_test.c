@@ -4,9 +4,15 @@
 static void ring_test(void)
 {
     uint8_t buffer[32];
-    struct ring_t ring;
+    struct ring_t ring =
+    {
+        .CONFIG = &(struct ring_config_t){
+            .buffer = buffer,
+            .length = sizeof(buffer)
+        }
+    };
 
-    ring_init(&ring, buffer, sizeof(buffer));
+    ring_init(&ring);
 
     TEST_EQUAL(ring_count(&ring), 0u);
     TEST_EQUAL(ring_space(&ring), 32u);
