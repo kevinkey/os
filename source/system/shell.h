@@ -14,11 +14,16 @@ struct shell_opt_t
     char * DESC;
 };
 
+struct shell_config_t
+{
+    void (*put)(char const str[]);
+    size_t (*get)(char str[], size_t length);
+};
+
 struct shell_t
 {
     struct list_t cmd;
-    void (*PUT)(char const str[]);
-    size_t (*GET)(char str[], size_t length);
+    struct shell_config_t const * CONFIG;
     char in[SHELL_LINE_SIZE];
     char out[SHELL_LINE_SIZE];
     bool shutdown;

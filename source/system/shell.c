@@ -10,7 +10,7 @@ static void help_cmd(struct shell_t * shell)
         struct shell_cmd_t * cmd = (struct shell_cmd_t *)i;
 
         snprintf(shell->out, SHELL_LINE_SIZE, "%-20s %s\n", cmd->NAME, cmd->DESC);
-        shell->PUT(shell->out);
+        shell->CONFIG->put(shell->out);
     }
 }
 
@@ -28,7 +28,7 @@ static void time_cmd(struct shell_t * shell)
     (void)time_string(shell->out, SHELL_LINE_SIZE);
     strcat(shell->out, "\n");
 
-    shell->PUT(shell->out);
+    shell->CONFIG->put(shell->out);
 }
 
 static struct shell_cmd_t Time =
@@ -87,14 +87,14 @@ void shell_register(struct shell_t * shell, struct shell_cmd_t * cmd)
 
 void shell_process(struct shell_t * shell)
 {
-    shell->PUT("Hello world!\n");
+    shell->CONFIG->put("Hello world!\n");
 
     help_cmd(shell);
 
     while (!shell->shutdown)
     {
-        shell->PUT("$ ");
-        (void)shell->GET(shell->in, SHELL_LINE_SIZE);
+        shell->CONFIG->put("$ ");
+        (void)shell->CONFIG->get(shell->in, SHELL_LINE_SIZE);
         char * line = shell->in;
 
         if (line = strtok(line, " \t\n\r\f\v"))
@@ -103,7 +103,7 @@ void shell_process(struct shell_t * shell)
 
             if (cmd == NULL)
             {
-                shell->PUT("Command not found.\n");
+                shell->CONFIG->put("Command not found.\n");
             }
             else
             {

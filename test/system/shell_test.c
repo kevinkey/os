@@ -13,7 +13,7 @@ size_t test_get(char str[], size_t length)
     return strlen(fgets(str, length, stdin));
 }
 
-struct shell_t Shell = {.PUT = test_put, .GET = test_get};
+struct shell_t Shell = {.CONFIG = &(struct shell_config_t){.put = test_put, .get = test_get}};
 
 int main(void)
 {
