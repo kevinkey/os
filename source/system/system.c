@@ -28,10 +28,8 @@ static void schedule_task(void)
 {
     Active_Task = &Idle;
 
-    LIST_FOR_EACH(&Task_List, i)
+    LIST_FOR_EACH(&Task_List, struct task_t *, task)
     {
-        struct task_t * task = (struct task_t *)i;
-
         if(task_ready(task))
         {
             if((uint_t)task->CONFIG->priority > (uint_t)Active_Task->CONFIG->priority)

@@ -5,10 +5,8 @@
 
 static void help_cmd(struct shell_t * shell)
 {
-    LIST_FOR_EACH(&shell->cmd, i)
+    LIST_FOR_EACH(&shell->cmd, struct shell_cmd_t *, cmd)
     {
-        struct shell_cmd_t * cmd = (struct shell_cmd_t *)i;
-
         snprintf(shell->out, SHELL_LINE_SIZE, "%-20s %s\n", cmd->NAME, cmd->DESC);
         shell->CONFIG->put(shell->out);
     }
@@ -58,10 +56,8 @@ static struct shell_cmd_t * find_cmd(struct shell_t * shell, char const * name)
 {
     struct shell_cmd_t * cmd = NULL;
 
-    LIST_FOR_EACH(&shell->cmd, i)
+    LIST_FOR_EACH(&shell->cmd, struct shell_cmd_t *, c)
     {
-        struct shell_cmd_t * c = (struct shell_cmd_t *)i;
-
         if (strcmp(c->NAME, name) == 0)
         {
             cmd = c;
