@@ -1,5 +1,5 @@
 #include "test.h"
-#include "term.h"
+#include "shell.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -13,12 +13,12 @@ size_t test_get(char str[], size_t length)
     return strlen(fgets(str, length, stdin));
 }
 
-struct term_t Term = {.PUT = test_put, .GET = test_get};
+struct shell_t Shell = {.PUT = test_put, .GET = test_get};
 
 int main(void)
 {
-    term_init(&Term);
-    term_process(&Term);
+    shell_init(&Shell);
+    shell_process(&Shell);
 
     exit(EXIT_SUCCESS);
 }

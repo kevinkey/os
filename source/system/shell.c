@@ -1,20 +1,20 @@
-#include "term.h"
+#include "shell.h"
 #include "time.h"
 #include <stdio.h>
 #include <string.h>
 
-static void help_cmd(struct term_t * term)
+static void help_cmd(struct shell_t * shell)
 {
-    LIST_FOR_EACH(&term->cmd, i)
+    LIST_FOR_EACH(&shell->cmd, i)
     {
-        struct term_cmd_t * cmd = (struct term_cmd_t *)i;
+        struct shell_cmd_t * cmd = (struct shell_cmd_t *)i;
 
-        snprintf(term->out, TERM_LINE_SIZE, "%-20s %s\n", cmd->NAME, cmd->DESC);
-        term->PUT(term->out);
+        snprintf(shell->out, SHELL_LINE_SIZE, "%-20s %s\n", cmd->NAME, cmd->DESC);
+        shell->PUT(shell->out);
     }
 }
 
-static struct term_cmd_t Help =
+static struct shell_cmd_t Help =
 {
     .NAME = "help",
     .DESC = "Prints a list of all registered commands",
@@ -23,15 +23,15 @@ static struct term_cmd_t Help =
     .FUNCTION = help_cmd,
 };
 
-static void time_cmd(struct term_t * term)
+static void time_cmd(struct shell_t * shell)
 {
-    (void)time_string(term->out, TERM_LINE_SIZE);
-    strcat(term->out, "\n");
+    (void)time_string(shell->out, SHELL_LINE_SIZE);
+    strcat(shell->out, "\n");
 
-    term->PUT(term->out);
+    shell->PUT(shell->out);
 }
 
-static struct term_cmd_t Time =
+static struct shell_cmd_t Time =
 {
     .NAME = "time",
     .DESC = "Prints the current system time",
@@ -40,27 +40,27 @@ static struct term_cmd_t Time =
     .FUNCTION = time_cmd,
 };
 
-static void exit_cmd(struct term_t * term)
+static void exit_cmd(struct shell_t * shell)
 {
-    term->shutdown = true;
+    shell->shutdown = true;
 }
 
-static struct term_cmd_t Exit =
+static struct shell_cmd_t Exit =
 {
     .NAME = "exit",
-    .DESC = "Ends execution of the terminal",
+    .DESC = "Ends execution of the shellinal",
     .OPTION = NULL,
     .COUNT = 0u,
     .FUNCTION = exit_cmd,
 };
 
-static struct term_cmd_t * find_cmd(struct term_t * term, char const * name)
+static struct shell_cmd_t * find_cmd(struct shell_t * shell, char const * name)
 {
-    struct term_cmd_t * cmd = NULL;
+    struct shell_cmd_t * cmd = NULL;
 
-    LIST_FOR_EACH(&term->cmd, i)
+    LIST_FOR_EACH(&shell->cmd, i)
     {
-        struct term_cmd_t * c = (struct term_cmd_t *)i;
+        struct shell_cmd_t * c = (struct shell_cmd_t *)i;
 
         if (strcmp(c->NAME, name) == 0)
         {
@@ -72,42 +72,42 @@ static struct term_cmd_t * find_cmd(struct term_t * term, char const * name)
     return cmd;
 }
 
-void term_init(struct term_t * term)
+void shell_init(struct shell_t * shell)
 {
-    list_init(&term->cmd);
-    term_register(term, &Help);
-    term_register(term, &Time);
-    term_register(term, &Exit);
+    list_init(&shell->cmd);
+    shell_register(shell, &Help);
+    shell_register(shell, &Time);
+    shell_register(shell, &Exit);
 }
 
-void term_register(struct term_t * term, struct term_cmd_t * cmd)
+void shell_register(struct shell_t * shell, struct shell_cmd_t * cmd)
 {
-    list_add(&term->cmd, (struct list_item_t *)cmd, LIST_ADD_TAIL);
+    list_add(&shell->cmd, (struct list_item_t *)cmd, LIST_ADD_TAIL);
 }
 
-void term_process(struct term_t * term)
+void shell_process(struct shell_t * shell)
 {
-    term->PUT("Hello world!\n");
+    shell->PUT("Hello world!\n");
 
-    help_cmd(term);
+    help_cmd(shell);
 
-    while (!term->shutdown)
+    while (!shell->shutdown)
     {
-        term->PUT("$ ");
-        (void)term->GET(term->in, TERM_LINE_SIZE);
-        char * line = term->in;
+        shell->PUT("$ ");
+        (void)shell->GET(shell->in, SHELL_LINE_SIZE);
+        char * line = shell->in;
 
         if (line = strtok(line, " \t\n\r\f\v"))
         {
-            struct term_cmd_t * cmd = find_cmd(term, line);
+            struct shell_cmd_t * cmd = find_cmd(shell, line);
 
             if (cmd == NULL)
             {
-                term->PUT("Command not found.\n");
+                shell->PUT("Command not found.\n");
             }
             else
             {
-                cmd->FUNCTION(term);
+                cmd->FUNCTION(shell);
             }
         }
     }

@@ -1,41 +1,41 @@
-#ifndef TERM_H
-#define TERM_H
+#ifndef SHELL_H
+#define SHELL_H
 
 #include "types.h"
 #include "list.h"
 
-#ifndef TERM_LINE_SIZE
-#define TERM_LINE_SIZE 80
+#ifndef SHELL_LINE_SIZE
+#define SHELL_LINE_SIZE 80
 #endif
 
-struct term_opt_t
+struct shell_opt_t
 {
     char * NAME;
     char * DESC;
 };
 
-struct term_t
+struct shell_t
 {
     struct list_t cmd;
     void (*PUT)(char const str[]);
     size_t (*GET)(char str[], size_t length);
-    char in[TERM_LINE_SIZE];
-    char out[TERM_LINE_SIZE];
+    char in[SHELL_LINE_SIZE];
+    char out[SHELL_LINE_SIZE];
     bool shutdown;
 };
 
-struct term_cmd_t
+struct shell_cmd_t
 {
     struct list_item_t next;
-    void (*FUNCTION)(struct term_t * term);
+    void (*FUNCTION)(struct shell_t * shell);
     char * NAME;
     char * DESC;
-    struct term_opt_t * OPTION;
+    struct shell_opt_t * OPTION;
     size_t COUNT;
 };
 
-void term_init(struct term_t * term);
-void term_register(struct term_t * term, struct term_cmd_t * cmd);
-void term_process(struct term_t * term);
+void shell_init(struct shell_t * shell);
+void shell_register(struct shell_t * shell, struct shell_cmd_t * cmd);
+void shell_process(struct shell_t * shell);
 
 #endif
