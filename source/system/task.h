@@ -28,11 +28,11 @@ struct task_t
     struct list_item_t item;
     struct task_config_t const * CONFIG;
     event_t * event;
-    time_t timeout;
+    uint32_t timeout;
 };
 
 void task_init(struct task_t * task);
-bool task_wait(struct task_t * task, event_t * event, time_t timeout);
+bool task_wait(struct task_t * task, event_t * event, uint32_t timeout);
 bool task_ready(struct task_t * task);
 void task_save(struct task_t * task);
 void task_load(struct task_t * task);

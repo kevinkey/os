@@ -4,6 +4,7 @@
 #include "types.h"
 #include "event.h"
 #include "ring.h"
+#include "list.h"
 #include "time.h"
 
 enum uart_parity_t
@@ -21,6 +22,7 @@ enum uart_stop_t
 
 struct uart_config_t
 {
+    struct list_item_t item;
     void (*transmit)(uint8_t, uint8_t const[], size_t length);
     struct ring_config_t receive;
     uint32_t baudrate;
@@ -39,6 +41,6 @@ struct uart_t
 
 void uart_init(struct uart_t * uart);
 void uart_write(struct uart_t * uart, uint8_t const buffer[], size_t length);
-bool uart_read(struct uart_t * uart, uint8_t buffer[], size_t length, time_t timeout);
+bool uart_read(struct uart_t * uart, uint8_t buffer[], size_t length, uint32_t timeout);
 
 #endif

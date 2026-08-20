@@ -10,7 +10,7 @@ void event_set(event_t * event)
     *event = true;
 }
 
-bool event_wait(event_t * event, time_t timeout)
+bool event_wait(event_t * event, uint32_t timeout)
 {
 
 }

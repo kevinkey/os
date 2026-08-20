@@ -54,7 +54,7 @@ void system_start(void)
     irq_enable(true);
 }
 
-void system_tick(time_t amount)
+void system_tick(uint32_t amount)
 {
     bool state = irq_disable();
 

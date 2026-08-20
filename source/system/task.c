@@ -20,7 +20,7 @@ void task_init(struct task_t * task)
     system_add_task(task);
 }
 
-bool task_wait(struct task_t * task, event_t * event, time_t timeout)
+bool task_wait(struct task_t * task, event_t * event, uint32_t timeout)
 {
     bool state = irq_disable();
 
