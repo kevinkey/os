@@ -9,7 +9,7 @@ static bool write(struct shell_t * shell, struct uart_t * uart)
     for (count = 0u; count < NUM(bytes); count++)
     {
         int_t num;
-        if (!shell_integer(shell, &num))
+        if (!shell_getnum(shell, &num))
         {
             break;
         }
@@ -35,7 +35,7 @@ static bool write(struct shell_t * shell, struct uart_t * uart)
 static bool read(struct shell_t * shell, struct uart_t * uart)
 {
     int_t num;
-    if (!shell_integer(shell, &num))
+    if (!shell_getnum(shell, &num))
     {
         num = uart_bytes(uart);
     }
@@ -72,7 +72,7 @@ static bool uart_cmd(struct shell_t * shell)
     int_t id;
     struct uart_t * uart;
 
-    if (!shell_integer(shell, &id))
+    if (!shell_getnum(shell, &id))
     {
         shell_put(shell, "Invalid value for ID.\n");
     }

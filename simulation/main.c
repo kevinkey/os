@@ -36,7 +36,6 @@ void * time_sec(void * arg)
     return NULL;
 }
 
-
 void uart_tx(uint8_t id, uint8_t const buffer[], size_t length)
 {
     printf("\e[1;32mUART%d: ", id);

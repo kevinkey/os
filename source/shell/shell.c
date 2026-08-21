@@ -1,9 +1,9 @@
 #include "shell.h"
+#include "shell_time.h"
 #include "shell_uart.h"
-#include "time.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 static bool help_cmd(struct shell_t * shell)
 {
@@ -19,21 +19,6 @@ static struct shell_cmd_t Help =
     .NAME = "help",
     .DESC = "Prints a list of all registered commands",
     .FUNCTION = help_cmd,
-};
-
-static bool time_cmd(struct shell_t * shell)
-{
-    (void)time_string(shell->out, SHELL_LINE_SIZE);
-    strcat(shell->out, "\n");
-
-    shell_put(shell, shell->out);
-}
-
-static struct shell_cmd_t Time =
-{
-    .NAME = "time",
-    .DESC = "Prints the current system time",
-    .FUNCTION = time_cmd,
 };
 
 static bool exit_cmd(struct shell_t * shell)
@@ -68,7 +53,7 @@ void shell_init(struct shell_t * shell)
 {
     list_init(&shell->cmd);
     shell_register(shell, &Help);
-    shell_register(shell, &Time);
+    shell_register(shell, &Shell_Time);
     shell_register(shell, &Shell_Uart);
     shell_register(shell, &Exit);
 }
@@ -175,7 +160,7 @@ size_t shell_find(struct shell_t * shell, char const * string[], size_t count)
     return index;
 }
 
-bool shell_integer(struct shell_t * shell, int_t * num)
+bool shell_getnum(struct shell_t * shell, int_t * num)
 {
     bool valid = false;
     char * word;
