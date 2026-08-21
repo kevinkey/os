@@ -32,6 +32,40 @@ static bool write(struct shell_t * shell, struct uart_t * uart)
     return true;
 }
 
+static bool read(struct shell_t * shell, struct uart_t * uart)
+{
+    int_t num;
+    if (!shell_integer(shell, &num))
+    {
+        num = uart_bytes(uart);
+    }
+
+    uint8_t bytes[16];
+
+    while (num > 0)
+    {
+        if (!uart_read(uart, bytes, MIN(16, num), 0u))
+        {
+            shell_put(shell, "Insufficient bytes available.\n");
+            return false;
+        }
+        shell_putbytes(shell, bytes, MIN(16, num));
+        num -= 16;
+    }
+
+    return true;
+}
+
+static bool status(struct shell_t * shell, struct uart_t * uart)
+{
+    shell_put(shell, "Available: ");
+    shell_putnum(shell, (int_t)uart_bytes(uart));
+    shell_put(shell, "Overflow: ");
+    shell_putnum(shell, uart_overflow(uart) ? 1 : 0);
+
+    return true;
+}
+
 static bool uart_cmd(struct shell_t * shell)
 {
     bool valid = false;
@@ -64,10 +98,10 @@ static bool uart_cmd(struct shell_t * shell)
                 valid = write(shell, uart);
                 break;
             case 1u:
-                shell_put(shell, "Read\n");
+                valid = read(shell, uart);
                 break;
             case 2u:
-                shell_put(shell, "Status\n");
+                valid = status(shell, uart);
                 break;
         }
     }

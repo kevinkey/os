@@ -36,6 +36,8 @@ void shell_init(struct shell_t * shell);
 void shell_register(struct shell_t * shell, struct shell_cmd_t * cmd);
 void shell_process(struct shell_t * shell);
 void shell_put(struct shell_t * shell, char const string[]);
+void shell_putbytes(struct shell_t * shell, uint8_t const bytes[], size_t length);
+void shell_putnum(struct shell_t * shell, int_t num);
 size_t shell_find(struct shell_t * shell, char const * string[], size_t count);
 bool shell_integer(struct shell_t * shell, int_t * num);
 

@@ -45,7 +45,7 @@ void uart_write(struct uart_t * uart, uint8_t const buffer[], size_t length)
 bool uart_read(struct uart_t * uart, uint8_t buffer[], size_t length, uint32_t timeout)
 {
     uint32_t start_time = time_now();
-    uint32_t elapsed = 0u;
+    uint32_t elapsed = 0;
     bool read = false;
 
     do
@@ -59,4 +59,26 @@ bool uart_read(struct uart_t * uart, uint8_t buffer[], size_t length, uint32_t t
     while (event_wait(&uart->rx_data, timeout - elapsed));
 
     return read;
+}
+
+size_t uart_bytes(struct uart_t * uart)
+{
+    return ring_count(&uart->receive);
+}
+
+bool uart_overflow(struct uart_t * uart)
+{
+    return event_wait(&uart->rx_overflow, 0);
+}
+
+void uart_rx(struct uart_t * uart, uint8_t const buffer[], size_t length)
+{
+    if (ring_write(&uart->receive, buffer, length))
+    {
+        event_set(&uart->rx_data);
+    }
+    else
+    {
+        event_set(&uart->rx_overflow);
+    }
 }

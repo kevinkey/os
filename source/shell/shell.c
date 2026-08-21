@@ -118,6 +118,47 @@ void shell_put(struct shell_t * shell, char const string[])
     shell->CONFIG->put(string);
 }
 
+void shell_putbytes(struct shell_t * shell, uint8_t const bytes[], size_t length)
+{
+    char hex[] = "0123456789abcdef";
+
+    shell_put(shell, "0x");
+
+    char str[] = "XX ";
+    for (size_t i = 0; i < length; i++)
+    {
+        str[0] = hex[bytes[i] >> 4];
+        str[1] = hex[bytes[i] & 0xf];
+
+        shell_put(shell, str);
+    }
+    shell_put(shell, "\n");
+}
+
+void shell_putnum(struct shell_t * shell, int_t num)
+{
+    char dec[] = "0123456789";
+    char str[32];
+
+    str[31] = '\0';
+    str[30] = '\n';
+    int_t index = 30;
+
+    bool negative = (num < 0);
+    if (negative) { num *= -1; }
+
+    while (index > 1)
+    {
+        str[--index] = dec[num % 10];
+        num /= 10;
+        if (num == 0) { break; }
+    }
+
+    if (negative) { str[--index] = '-'; }
+
+    shell_put(shell, &str[index]);
+}
+
 size_t shell_find(struct shell_t * shell, char const * string[], size_t count)
 {
     size_t index = count;
@@ -125,13 +166,9 @@ size_t shell_find(struct shell_t * shell, char const * string[], size_t count)
 
     if (word = strtok(NULL, " \t\n\r\f\v"))
     {
-        for (size_t i = 0u; i < count; i++)
+        for (size_t i = 0; i < count; i++)
         {
-            if (strcmp(word, string[i]) == 0)
-            {
-                index = i;
-                break;
-            }
+            if (strcmp(word, string[i]) == 0) { index = i; break; }
         }
     }
 
@@ -150,52 +187,29 @@ bool shell_integer(struct shell_t * shell, int_t * num)
 
         if ((word[0] == '0') && (word[1] == 'x'))
         {
-            for (size_t i = 2u; word[i] != '\0'; i++)
+            for (size_t i = 2; word[i] != '\0'; i++)
             {
                 *num <<= 4;
 
-                if (RANGE(word[i], '0', '9'))
-                {
-                    *num |= word[i] - '0';
-                }
-                else if (RANGE(word[i], 'a', 'f'))
-                {
-                    *num |= 0xA + (word[i] - 'a');
-                }
-                else if (RANGE(word[i], 'A', 'F'))
-                {
-                    *num |= 0xA + (word[i] - 'A');
-                }
-                else
-                {
-                    valid = false;
-                    break;
-                }
+                if (RANGE(word[i], '0', '9')) { *num |= word[i] - '0'; }
+                else if (RANGE(word[i], 'a', 'f')) { *num |= 0xA + (word[i] - 'a'); }
+                else if (RANGE(word[i], 'A', 'F')) { *num |= 0xA + (word[i] - 'A'); }
+                else { valid = false; break; }
             }
         }
         else
         {
             bool negative = (word[0] == '-');
 
-            for (size_t i = negative ? 1u : 0u; word[i] != '\0'; i++)
+            for (size_t i = negative ? 1 : 0; word[i] != '\0'; i++)
             {
                 *num *= 10;
 
-                if (RANGE(word[i], '0', '9'))
-                {
-                    *num += word[i] - '0';
-                }
-                else
-                {
-                    valid = false;
-                    break;
-                }
+                if (RANGE(word[i], '0', '9')) { *num += word[i] - '0'; }
+                else { valid = false; break; }
             }
 
-            if (negative)
-            {
-                *num *= -1;
-            }
+            if (negative) { *num *= -1; }
         }
     }
 

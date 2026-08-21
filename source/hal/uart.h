@@ -37,11 +37,15 @@ struct uart_t
     struct ring_t receive;
     event_t tx_complete;
     event_t rx_data;
+    event_t rx_overflow;
 };
 
 struct uart_t * uart_ref(uint8_t id);
 void uart_init(struct uart_t * uart);
 void uart_write(struct uart_t * uart, uint8_t const buffer[], size_t length);
 bool uart_read(struct uart_t * uart, uint8_t buffer[], size_t length, uint32_t timeout);
+size_t uart_bytes(struct uart_t * uart);
+bool uart_overflow(struct uart_t * uart);
+void uart_rx(struct uart_t * uart, uint8_t const buffer[], size_t length);
 
 #endif

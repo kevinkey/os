@@ -12,5 +12,5 @@ void event_set(event_t * event)
 
 bool event_wait(event_t * event, uint32_t timeout)
 {
-
+    return *event;
 }
