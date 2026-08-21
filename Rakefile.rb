@@ -25,3 +25,11 @@ task :test => :build do
     end
 end
 
+task :sim => :build do
+    Dir.new("simulation/support").files(-1, ".c").each do |c|
+        compile(c)
+    end
+
+    exe = program("simulation/main.c")
+    cmd([exe], "Run simulation")
+end

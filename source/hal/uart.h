@@ -22,7 +22,6 @@ enum uart_stop_t
 
 struct uart_config_t
 {
-    struct list_item_t item;
     void (*transmit)(uint8_t, uint8_t const[], size_t length);
     struct ring_config_t receive;
     uint32_t baudrate;
@@ -33,12 +32,14 @@ struct uart_config_t
 
 struct uart_t
 {
+    struct list_item_t item;
     struct uart_config_t const * CONFIG;
     struct ring_t receive;
     event_t tx_complete;
     event_t rx_data;
 };
 
+struct uart_t * uart_ref(uint8_t id);
 void uart_init(struct uart_t * uart);
 void uart_write(struct uart_t * uart, uint8_t const buffer[], size_t length);
 bool uart_read(struct uart_t * uart, uint8_t buffer[], size_t length, uint32_t timeout);

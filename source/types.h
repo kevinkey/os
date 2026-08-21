@@ -14,4 +14,6 @@ typedef int int_t;
 
 #define RANGE(x, a, b) ((x) >= (a) && (x) <= (b))
 
+#define NUM(a) (sizeof((a)) / sizeof((a)[0]))
+
 #endif

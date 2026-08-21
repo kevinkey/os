@@ -1,6 +1,6 @@
 #include "shell.h"
+#include "shell_uart.h"
 #include "time.h"
-#include "uart.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -48,51 +48,6 @@ static struct shell_cmd_t Exit =
     .FUNCTION = exit_cmd,
 };
 
-static bool uart_cmd(struct shell_t * shell)
-{
-    bool valid = true;
-
-    int_t port;
-    if (!shell_integer(shell, &port))
-    {
-        valid = false;
-        shell_put(shell, "Port value not found.\n");
-    }
-    else if (uart_ref())
-    else
-    {
-        switch (shell_find(shell, (char const * []){"write", "read", "status"}, 3u))
-        {
-            default:
-                valid = false;
-                shell_put(shell, "Unrecognized command.\n");
-                break;
-            case 0u:
-                shell_put(shell, "Write\n");
-                break;
-            case 1u:
-                shell_put(shell, "Read\n");
-                break;
-            case 2u:
-                shell_put(shell, "Status\n");
-                break;
-        }
-    }
-
-    return valid;
-};
-
-static struct shell_cmd_t Uart_Shell =
-{
-    .NAME = "uart",
-    .DESC = "Write/read data using a uart port",
-    .HELP = "Example:\n"
-    "    $ uart <id> write <bytes>\n"
-    "    $ uart <id> read <number>\n"
-    "    $ uart <id> status\n",
-    .FUNCTION = uart_cmd,
-};
-
 static struct shell_cmd_t * find_cmd(struct shell_t * shell, char const * name)
 {
     struct shell_cmd_t * cmd = NULL;
@@ -114,7 +69,7 @@ void shell_init(struct shell_t * shell)
     list_init(&shell->cmd);
     shell_register(shell, &Help);
     shell_register(shell, &Time);
-    shell_register(shell, &Uart);
+    shell_register(shell, &Shell_Uart);
     shell_register(shell, &Exit);
 }
 
