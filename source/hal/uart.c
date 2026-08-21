@@ -1,11 +1,35 @@
 #include "uart.h"
+#include "shell.h"
+
+static bool Uart_Init = true;
 
 static struct list_t Uarts;
 
+struct uart_t * uart_ref(uint8_t id)
+{
+    struct uart_t * ref = NULL;
+
+    LIST_FOR_EACH(&Uarts, struct uart_t *, uart)
+    {
+        if (uart->CONFIG->id == id)
+        {
+            ref = uart;
+            break;
+        }
+    }
+
+    return ref;
+}
+
 void uart_init(struct uart_t * uart)
 {
-    if (Uarts.head == NULL) list_init(&Uarts);
-    list_add(&Uarts, uart, LIST_ADD_HEAD);
+    if (Uart_Init)
+    {
+        Uart_Init = false;
+        list_init(&Uarts);
+    }
+
+    list_add(&Uarts, (struct list_item_t * )uart, LIST_ADD_HEAD);
 
     uart->receive.CONFIG = &uart->CONFIG->receive;
     ring_init(&uart->receive);

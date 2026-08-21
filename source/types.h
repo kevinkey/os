@@ -12,4 +12,6 @@ typedef int int_t;
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+#define RANGE(x, a, b) ((x) >= (a) && (x) <= (b))
+
 #endif

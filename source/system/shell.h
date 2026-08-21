@@ -8,10 +8,6 @@
 #define SHELL_LINE_SIZE 80
 #endif
 
-#ifndef SHELL_MAX_ARGS
-#define SHELL_MAX_ARGS 32
-#endif
-
 struct shell_config_t
 {
     void (*put)(char const str[]);
@@ -30,7 +26,7 @@ struct shell_t
 struct shell_cmd_t
 {
     struct list_item_t next;
-    void (*FUNCTION)(struct shell_t * shell, int_t count, char * args[]);
+    bool (*FUNCTION)(struct shell_t * shell);
     char * NAME;
     char * DESC;
     char * HELP;
@@ -39,5 +35,8 @@ struct shell_cmd_t
 void shell_init(struct shell_t * shell);
 void shell_register(struct shell_t * shell, struct shell_cmd_t * cmd);
 void shell_process(struct shell_t * shell);
+void shell_put(struct shell_t * shell, char const string[]);
+size_t shell_find(struct shell_t * shell, char const * string[], size_t count);
+bool shell_integer(struct shell_t * shell, int_t * num);
 
 #endif
