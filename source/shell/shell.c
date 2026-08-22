@@ -5,13 +5,39 @@
 #include <stdlib.h>
 #include <string.h>
 
+static struct shell_cmd_t * find_cmd(struct shell_t * shell, char const * name)
+{
+    struct shell_cmd_t * cmd = NULL;
+
+    LIST_FOR_EACH(&shell->cmd, struct shell_cmd_t *, c)
+    {
+        if (strcmp(c->NAME, name) == 0) { cmd = c; break; }
+    }
+
+    return cmd;
+}
+
 static bool help_cmd(struct shell_t * shell)
 {
-    LIST_FOR_EACH(&shell->cmd, struct shell_cmd_t *, cmd)
+    char const * word = shell_get(shell);
+    struct shell_cmd_t * cmd = NULL;
+
+    if (word) { cmd = find_cmd(shell, word); }
+
+    if ((cmd != NULL) && (cmd->HELP != NULL))
     {
-        snprintf(shell->out, SHELL_LINE_SIZE, "%-20s %s\n", cmd->NAME, cmd->DESC);
-        shell_put(shell, shell->out);
+        shell_put(shell, cmd->HELP);
     }
+    else
+    {
+        LIST_FOR_EACH(&shell->cmd, struct shell_cmd_t *, cmd)
+        {
+            snprintf(shell->out, SHELL_LINE_SIZE, "%-20s %s\n", cmd->NAME, cmd->DESC);
+            shell_put(shell, shell->out);
+        }
+    }
+
+    return true;
 }
 
 static struct shell_cmd_t Help =
@@ -24,6 +50,7 @@ static struct shell_cmd_t Help =
 static bool exit_cmd(struct shell_t * shell)
 {
     shell->shutdown = true;
+    return true;
 }
 
 static struct shell_cmd_t Exit =
@@ -33,29 +60,13 @@ static struct shell_cmd_t Exit =
     .FUNCTION = exit_cmd,
 };
 
-static struct shell_cmd_t * find_cmd(struct shell_t * shell, char const * name)
-{
-    struct shell_cmd_t * cmd = NULL;
-
-    LIST_FOR_EACH(&shell->cmd, struct shell_cmd_t *, c)
-    {
-        if (strcmp(c->NAME, name) == 0)
-        {
-            cmd = c;
-            break;
-        }
-    }
-
-    return cmd;
-}
-
 void shell_init(struct shell_t * shell)
 {
     list_init(&shell->cmd);
     shell_register(shell, &Help);
+    shell_register(shell, &Exit);
     shell_register(shell, &Shell_Time);
     shell_register(shell, &Shell_Uart);
-    shell_register(shell, &Exit);
 }
 
 void shell_register(struct shell_t * shell, struct shell_cmd_t * cmd)
@@ -67,8 +78,6 @@ void shell_process(struct shell_t * shell)
 {
     shell_put(shell, "Hello world!\n");
 
-    help_cmd(shell);
-
     while (!shell->shutdown)
     {
         shell_put(shell, "$ ");
@@ -79,20 +88,11 @@ void shell_process(struct shell_t * shell)
         {
             struct shell_cmd_t * cmd = find_cmd(shell, line);
 
-            if (cmd == NULL)
-            {
-                shell_put(shell, "Command not found.\n");
-            }
+            if (cmd == NULL) { shell_put(shell, "Command not found.\n"); }
             else
             {
-                if (cmd->FUNCTION(shell))
-                {
-                    /* Command was successful */
-                }
-                else if (cmd->HELP != NULL)
-                {
-                    shell_put(shell, cmd->HELP);
-                }
+                if (cmd->FUNCTION(shell)) { /* Command was successful */ }
+                else if (cmd->HELP != NULL) { shell_put(shell, cmd->HELP); }
             }
         }
     }
@@ -147,9 +147,9 @@ void shell_putnum(struct shell_t * shell, int_t num)
 size_t shell_find(struct shell_t * shell, char const * string[], size_t count)
 {
     size_t index = count;
-    char * word;
+    char const * word;
 
-    if (word = strtok(NULL, " \t\n\r\f\v"))
+    if (word = shell_get(shell))
     {
         for (size_t i = 0; i < count; i++)
         {
@@ -158,6 +158,11 @@ size_t shell_find(struct shell_t * shell, char const * string[], size_t count)
     }
 
     return index;
+}
+
+char const * shell_get(struct shell_t * shell)
+{
+    return strtok(NULL, " \t\n\r\f\v");
 }
 
 bool shell_getnum(struct shell_t * shell, int_t * num)

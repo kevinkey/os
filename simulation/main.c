@@ -2,6 +2,7 @@
 #include "shell.h"
 #include "uart.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -61,7 +62,8 @@ void * uart0_rx(void * arg)
 {
     while (!Shutdown)
     {
-        uart_rx(&Uart0, (uint8_t[]){1u}, 1u);
+        uint8_t byte = (uint8_t)rand();
+        uart_rx(&Uart0, &byte, 1);
         (void)sleep(1);
     }
 

@@ -27,12 +27,12 @@ size_t time_string(char time[], size_t length)
 {
     uint32_t t = time_now();
 
-    uint32_t s = t / 1000u;
-    uint32_t ms = t % 1000u;
-    uint32_t m = s / 60u;
-    s %= 60u;
-    uint32_t h = m / 60u;
-    m %= 60u;
+    uint32_t s = t / 1000;
+    uint32_t ms = t % 1000;
+    uint32_t m = s / 60;
+    s %= 60;
+    uint32_t h = m / 60;
+    m %= 60;
 
     return snprintf(time, length, "%02d:%02d:%02d.%03d", h, m, s, ms);
 }

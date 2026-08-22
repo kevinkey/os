@@ -77,5 +77,5 @@ void system_add_task(struct task_t * task)
 
 void system_yield(void)
 {
-    system_tick(0u);
+    system_tick(0);
 }

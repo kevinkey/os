@@ -3,8 +3,8 @@
 
 void ring_init(struct ring_t * ring)
 {
-    ring->head = 0u;
-    ring->tail = 0u;
+    ring->head = 0;
+    ring->tail = 0;
     ring->full = false;
 }
 
@@ -49,7 +49,7 @@ bool ring_write(struct ring_t * ring, uint8_t const data[], size_t length)
             size_t amount_wrapped = length - room_to_end;
 
             memcpy(&ring->CONFIG->buffer[ring->tail], data, room_to_end);
-            if (amount_wrapped > 0u)
+            if (amount_wrapped > 0)
             {
                 memcpy(ring->CONFIG->buffer, &data[room_to_end], amount_wrapped);
             }
@@ -72,7 +72,7 @@ bool ring_read(struct ring_t * ring, uint8_t data[], size_t length)
 
     if (sufficient_data)
     {
-        if (length != 0u)
+        if (length != 0)
         {
             ring->full = false;
         }
@@ -84,7 +84,7 @@ bool ring_read(struct ring_t * ring, uint8_t data[], size_t length)
             size_t amount_wrapped = length - data_to_end;
 
             memcpy(data, &ring->CONFIG->buffer[ring->head], data_to_end);
-            if (amount_wrapped > 0u)
+            if (amount_wrapped > 0)
             {
                 memcpy(&data[data_to_end], ring->CONFIG->buffer, amount_wrapped);
             }

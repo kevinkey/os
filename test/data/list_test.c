@@ -14,29 +14,29 @@ static void list_tail_test(void)
 
     list_init(&list);
 
-    for(uint8_t i = 0u; i < 16; i++)
+    for(uint8_t i = 0; i < 16; i++)
     {
         pool[i].data = i;
         list_add(&list, (struct list_item_t *)&(pool[i]), LIST_ADD_TAIL);
     }
 
-    uint8_t count = 0u;
+    uint8_t count = 0;
     LIST_FOR_EACH(&list, struct test_t *, test)
     {
         TEST_EQUAL(test->data, count);
         count++;
     }
 
-    for(uint8_t i = 0u; i < 16; i += 2u)
+    for(uint8_t i = 0; i < 16; i += 2)
     {
         list_del(&list, (struct list_item_t *)&(pool[i]));
     }
 
-    count = 1u;
+    count = 1;
     LIST_FOR_EACH(&list, struct test_t *, test)
     {
         TEST_EQUAL(test->data, count);
-        count += 2u;
+        count += 2;
     }
 }
 
@@ -47,29 +47,29 @@ static void list_head_test(void)
 
     list_init(&list);
 
-    for(uint8_t i = 0u; i < 16; i++)
+    for(uint8_t i = 0; i < 16; i++)
     {
         pool[i].data = i;
         list_add(&list, (struct list_item_t *)&(pool[i]), LIST_ADD_HEAD);
     }
 
-    uint8_t count = 15u;
+    uint8_t count = 15;
     LIST_FOR_EACH(&list, struct test_t *, test)
     {
         TEST_EQUAL(test->data, count);
         count--;
     }
 
-    for(uint8_t i = 0u; i < 16; i += 2u)
+    for(uint8_t i = 0; i < 16; i += 2)
     {
         list_del(&list, (struct list_item_t *)&(pool[i]));
     }
 
-    count = 15u;
+    count = 15;
     LIST_FOR_EACH(&list, struct test_t *, test)
     {
         TEST_EQUAL(test->data, count);
-        count -= 2u;
+        count -= 2;
     }
 }
 

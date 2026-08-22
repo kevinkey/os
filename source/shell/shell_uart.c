@@ -6,7 +6,7 @@ static bool write(struct shell_t * shell, struct uart_t * uart)
     uint8_t bytes[16];
     size_t count;
 
-    for (count = 0u; count < NUM(bytes); count++)
+    for (count = 0; count < NUM(bytes); count++)
     {
         int_t num;
         if (!shell_getnum(shell, &num))
@@ -24,7 +24,7 @@ static bool write(struct shell_t * shell, struct uart_t * uart)
         }
     }
 
-    if (count != 0u)
+    if (count != 0)
     {
         uart_write(uart, bytes, count);
     }
@@ -44,7 +44,7 @@ static bool read(struct shell_t * shell, struct uart_t * uart)
 
     while (num > 0)
     {
-        if (!uart_read(uart, bytes, MIN(16, num), 0u))
+        if (!uart_read(uart, bytes, MIN(16, num), 0))
         {
             shell_put(shell, "Insufficient bytes available.\n");
             return false;
@@ -88,19 +88,19 @@ static bool uart_cmd(struct shell_t * shell)
     {
         valid = true;
 
-        switch (shell_find(shell, (char const * []){"write", "read", "status"}, 3u))
+        switch (shell_find(shell, (char const * []){"write", "read", "status"}, 3))
         {
             default:
                 valid = false;
                 shell_put(shell, "Unrecognized command.\n");
                 break;
-            case 0u:
+            case 0:
                 valid = write(shell, uart);
                 break;
-            case 1u:
+            case 1:
                 valid = read(shell, uart);
                 break;
-            case 2u:
+            case 2:
                 valid = status(shell, uart);
                 break;
         }

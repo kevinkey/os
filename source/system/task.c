@@ -3,7 +3,7 @@
 #include "system.h"
 #include <string.h>
 
-static uint8_t const Sentinel[] = {0x12u, 0x34u, 0x56u, 0x78u};
+static uint8_t const Sentinel[] = {0x12, 0x34, 0x56, 0x78};
 
 void task_init(struct task_t * task)
 {
