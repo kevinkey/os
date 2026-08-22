@@ -1,20 +1,19 @@
 #include "irq.h"
+#include <pthread.h>
 
-static bool Irq;
+static pthread_mutex_t lock;
 
-bool irq_disable(void)
+void irq_init(void)
 {
-    bool state = Irq;
-
-    Irq = false;
-
-    return state;
+    pthread_mutex_init(&lock, NULL);
 }
 
-void irq_enable(bool enable)
+void irq_disable(void)
 {
-    if(enable)
-    {
-        Irq = true;
-    }
+    pthread_mutex_lock(&lock);
+}
+
+void irq_enable(void)
+{
+    pthread_mutex_unlock(&lock);
 }

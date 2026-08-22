@@ -3,7 +3,8 @@
 
 #include "types.h"
 
-bool irq_disable(void);
-void irq_enable(bool enable);
+void irq_init(void);
+void irq_disable(void);
+void irq_enable(void);
 
 #endif

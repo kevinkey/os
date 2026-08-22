@@ -51,28 +51,28 @@ void system_start(void)
     schedule_task();
     task_load(Active_Task);
 
-    irq_enable(true);
+    irq_enable();
 }
 
 void system_tick(uint32_t amount)
 {
-    bool state = irq_disable();
+    irq_disable();
 
     task_save(Active_Task);
     time_increment(amount);
     schedule_task();
     task_load(Active_Task);
 
-    irq_enable(state);
+    irq_enable();
 }
 
 void system_add_task(struct task_t * task)
 {
-    bool state = irq_disable();
+    irq_disable();
 
     list_add(&Task_List, (struct list_item_t *)task, LIST_ADD_HEAD);
 
-    irq_enable(state);
+    irq_enable();
 }
 
 void system_yield(void)

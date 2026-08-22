@@ -22,14 +22,14 @@ void task_init(struct task_t * task)
 
 bool task_wait(struct task_t * task, event_t * event, uint32_t timeout)
 {
-    bool state = irq_disable();
+    irq_disable();
 
     task->event = event;
     task->timeout = time_now() + timeout;
 
     system_yield();
 
-    irq_enable(state);
+    irq_enable();
 
     return ((task->event != NULL) && *(task->event));
 }

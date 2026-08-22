@@ -1,20 +1,11 @@
 #include "irq.h"
 
-static bool Irq;
-
-bool irq_disable(void)
+void irq_disable(void)
 {
-    bool state = Irq;
 
-    Irq = false;
-
-    return state;
 }
 
-void irq_enable(bool enable)
+void irq_enable(void)
 {
-    if(enable)
-    {
-        Irq = true;
-    }
+
 }
