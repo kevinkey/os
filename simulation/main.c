@@ -19,7 +19,8 @@ size_t test_get(char str[], size_t length)
     return strlen(fgets(str, length, stdin));
 }
 
-struct shell_t Shell = {
+struct shell_t Shell =
+{
     .CONFIG = &(struct shell_config_t){
         .put = test_put,
         .get = test_get
@@ -47,7 +48,8 @@ void uart_tx(uint8_t id, uint8_t const buffer[], size_t length)
     printf("\e[0m\n");
 }
 
-struct uart_t Uart0 = {
+struct uart_t Uart0 =
+{
     .CONFIG = &(struct uart_config_t){
         .baudrate = 115200,
         .parity = UART_PARITY_NONE,

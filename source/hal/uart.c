@@ -11,11 +11,7 @@ struct uart_t * uart_ref(uint8_t id)
 
     LIST_FOR_EACH(&Uarts, struct uart_t *, uart)
     {
-        if (uart->CONFIG->id == id)
-        {
-            ref = uart;
-            break;
-        }
+        if (uart->CONFIG->id == id) { ref = uart; break; }
     }
 
     return ref;
@@ -23,11 +19,7 @@ struct uart_t * uart_ref(uint8_t id)
 
 void uart_init(struct uart_t * uart)
 {
-    if (Uart_Init)
-    {
-        Uart_Init = false;
-        list_init(&Uarts);
-    }
+    if (Uart_Init) { Uart_Init = false; list_init(&Uarts); }
 
     list_add(&Uarts, (struct list_item_t * )uart, LIST_ADD_HEAD);
 
