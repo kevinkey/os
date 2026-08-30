@@ -42,6 +42,8 @@ int main(void)
     shell_init(&Shell);
     shell_process(&Shell);
 
+    system_start();
+
     Shutdown = true;
     time_sim_deinit();
     uart_sim_deinit();

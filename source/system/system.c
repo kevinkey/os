@@ -7,10 +7,7 @@ struct task_t * Active_Task;
 
 static void idle_task(void)
 {
-    while (true)
-    {
-        /* do nothing */
-    }
+    while (true) { /* do nothing */ }
 }
 
 uint_t Stack[STACK_CONTEXT_SIZE];
@@ -30,18 +27,21 @@ static void schedule_task(void)
 
     LIST_FOR_EACH(&Task_List, struct task_t *, task)
     {
-        if(task_ready(task))
+        if (!task_ready(task))
         {
-            if((uint_t)task->CONFIG->priority > (uint_t)Active_Task->CONFIG->priority)
-            {
-                Active_Task = task;
-            }
+            /* Task must be ready to be scheduled */
+        }
+        else if((uint_t)task->CONFIG->priority > (uint_t)Active_Task->CONFIG->priority)
+        {
+            Active_Task = task;
         }
     }
 }
 
 void system_init(void)
 {
+    irq_disable();
+
     list_init(&Task_List);
     task_init(&Idle);
 }
