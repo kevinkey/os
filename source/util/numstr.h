@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-size_t numstr_dec(int32_t num, char str[], size_t len);
+void numstr_dec(char str[], int32_t num, uint8_t digits);
+void numstr_hex(char str[], uint8_t const bytes[], size_t length);
 
 #endif

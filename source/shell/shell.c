@@ -1,6 +1,8 @@
 #include "shell.h"
 #include "shell_time.h"
+#ifdef SHELL_UART
 #include "shell_uart.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,7 +68,9 @@ void shell_init(struct shell_t * shell)
     shell_register(shell, &Help);
     shell_register(shell, &Exit);
     shell_register(shell, &Shell_Time);
+#ifdef SHELL_UART
     shell_register(shell, &Shell_Uart);
+#endif
 }
 
 void shell_register(struct shell_t * shell, struct shell_cmd_t * cmd)
@@ -101,47 +105,6 @@ void shell_process(struct shell_t * shell)
 void shell_put(struct shell_t * shell, char const string[])
 {
     shell->CONFIG->put(string);
-}
-
-void shell_putbytes(struct shell_t * shell, uint8_t const bytes[], size_t length)
-{
-    char hex[] = "0123456789abcdef";
-
-    shell_put(shell, "0x");
-
-    char str[] = "XX ";
-    for (size_t i = 0; i < length; i++)
-    {
-        str[0] = hex[bytes[i] >> 4];
-        str[1] = hex[bytes[i] & 0xf];
-
-        shell_put(shell, str);
-    }
-    shell_put(shell, "\n");
-}
-
-void shell_putnum(struct shell_t * shell, int_t num)
-{
-    char dec[] = "0123456789";
-    char str[32];
-
-    str[31] = '\0';
-    str[30] = '\n';
-    int_t index = 30;
-
-    bool negative = (num < 0);
-    if (negative) { num *= -1; }
-
-    while (index > 1)
-    {
-        str[--index] = dec[num % 10];
-        num /= 10;
-        if (num == 0) { break; }
-    }
-
-    if (negative) { str[--index] = '-'; }
-
-    shell_put(shell, &str[index]);
 }
 
 size_t shell_find(struct shell_t * shell, char const * string[], size_t count)

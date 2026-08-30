@@ -6,18 +6,17 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+#include "shell.h"
 #include "numstr.h"
-
-// Volatile variable to track milliseconds elapsed
-volatile uint32_t millis_count = 0;
+#include "os_time.h"
 
 // Initialize UART
 void uart_init(unsigned int ubrr) {
     // Set baud rate registers
     UBRRH = (unsigned char)(ubrr >> 8);
     UBRRL = (unsigned char)ubrr;
-    // Enable transmitter
-    UCSRB = (1 << TXEN);
+    // Enable transmitter and receiver
+    UCSRB = (1 << TXEN) | (1 << RXEN);
     // Set frame format: 8 data bits, 1 stop bit
     UCSRC = (1 << URSEL) | (1 << UCSZ1) | (1 << UCSZ0);
 }
@@ -38,8 +37,9 @@ void timer1_init(void) {
     TCCR1B |= (1 << CS11);
 }
 
-ISR(TIMER1_COMPA_vect) {
-    millis_count++;
+ISR(TIMER1_COMPA_vect)
+{
+    os_time_increment(1);
 }
 
 // Transmit a single character
@@ -50,23 +50,61 @@ void uart_transmit(char data) {
     UDR = data;
 }
 
-// Transmit a string
-void uart_print(const char* str) {
-    while (*str) {
+char uart_receive(void) {
+    // Wait for data to be received (RXC flag becomes 1)
+    while (!(UCSRA & (1 << RXC)));
+
+    // Get and return received data from buffer
+    return UDR;
+}
+
+void uart_put(char const str[])
+{
+    while (*str)
+    {
+        if (*str == '\n') { uart_transmit('\r'); }
         uart_transmit(*str++);
     }
 }
 
-void uart_print_num(uint32_t num)
+size_t uart_get(char str[], size_t length)
 {
-    char str[11];
+    size_t i = 0;
 
-    numstr_dec(num, str, NUM(str));
+    do
+    {
+        bool eos = false;
 
-    uart_print(str);
+        str[i] = uart_receive();
+        uart_transmit(str[i]);
+
+        switch(str[i])
+        {
+            case '\n': uart_transmit('\r'); eos = true; break;
+            case '\r': uart_transmit('\n'); eos = true; break;
+            case '\b': i--; break;
+            default: i++; break;
+        }
+
+        if (eos) { break; }
+    }
+    while (i < length);
+
+    return i;
 }
 
+struct shell_t Shell =
+{
+    .CONFIG = &(struct shell_config_t){
+        .put = uart_put,
+        .get = uart_get
+    }
+};
+
 int main(void) {
+
+    shell_init(&Shell);
+
     // Set Pin 0 of Port B as an output
     DDRB |= (1 << PB0);
 
@@ -83,14 +121,11 @@ int main(void) {
 
     while (1) {
 
-        if ((millis_count - last_time) >= 1000)
-        {
-            last_time = millis_count;
+        shell_process(&Shell);
 
-            // Send string to FTDI chip
-            uart_print("[");
-            uart_print_num(millis_count);
-            uart_print("] Hello World!\r\n");
+        if (os_time_elapsed(last_time) >= 1000)
+        {
+            last_time = os_time_now();
 
             // Toggle the LED on
             PORTB ^= (1 << PB0);

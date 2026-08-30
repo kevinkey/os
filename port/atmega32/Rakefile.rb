@@ -9,7 +9,13 @@ task :build do
     FileUtils.mkdir_p("build")
 
     includes = Dir["../../source/**/"]
-    files = ["main.c", "../../source/util/numstr.c"]
+    files = [
+        "main.c",
+        "../../source/shell/shell.c",
+        "../../source/shell/shell_time.c",
+        "../../source/os/os_time.c",
+    ] + Dir["../../source/util/*.c"]
+
     objects = files.map {|f| File.join("build", File.basename(f).sub(".c", ".o"))}
 
     files.each_with_index do |c, i|
