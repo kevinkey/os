@@ -12,9 +12,10 @@ task :build do
     defines = ["F_CPU=8000000"]
     files = Dir["**/*.c"] + [
         "../../source/hal/uart.c",
-        "../../source/shell/shell.c",
-        "../../source/shell/shell_time.c",
-    ] + Dir["../../source/os/*.c"] + Dir["../../source/util/*.c"]
+    ] +
+    Dir["../../source/os/*.c"] +
+    Dir["../../source/shell/*.c"] +
+    Dir["../../source/util/*.c"]
 
     objects = files.map {|f| File.join("build", File.basename(f).sub(".c", ".o"))}
 

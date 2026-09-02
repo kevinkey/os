@@ -3,10 +3,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-struct uart_t Uart = {
-    .rx = {.LENGTH = 32, .BUFFER = (uint8_t[32]){0}},
-    .tx = {.LENGTH = 32, .BUFFER = (uint8_t[32]){0}}
-};
+struct uart_t Uart = {.rx = {.LENGTH = 32}, .tx = {.LENGTH = 32}};
 
 void uart_config(struct uart_t * uart, uint32_t baud, enum uart_parity_t parity, enum uart_stop_t stop)
 {
@@ -39,25 +36,33 @@ void uart_enable(struct uart_t * uart, bool transmit, bool receive)
     UCSRB = ucsrb;
 }
 
-bool uart_read(struct uart_t * uart, uint8_t buffer[], size_t length, uint32_t timeout)
-{
-    bool read;
+// bool uart_read(struct uart_t * uart, uint8_t buffer[], size_t length, uint32_t timeout)
+// {
+//     bool read;
 
-    os_enter_critical();
-    read = ring_read(&uart->rx, buffer, length);
-    os_exit_critical();
+//     os_enter_critical();
+//     read = ring_read(&uart->rx, buffer, length);
+//     os_exit_critical();
 
-    return read;
-}
+//     return read;
+// }
 
 void uart_write(struct uart_t * uart, uint8_t const buffer[], size_t length)
 {
-    os_enter_critical();
-    os_event_clear(&uart->tx_complete);
-    (void)ring_write(&uart->tx, buffer, length);
-    os_exit_critical();
+    size_t index = 0;
 
-    UCSRB |= (1 << UDRIE);
+    do
+    {
+        os_enter_critical();
+        os_event_clear(&uart->tx_complete);
+        if (ring_write(&uart->tx, &buffer[index], 1))
+        {
+            index++;
+        }
+        UCSRB |= (1 << UDRIE);
+        os_exit_critical();
+    }
+    while (index < length);
 }
 
 ISR(USART_UDRE_vect)

@@ -5,7 +5,7 @@
 
 struct ring_t
 {
-    uint8_t * BUFFER;
+    uint8_t * buffer;
     size_t LENGTH;
     size_t head;
     size_t tail;

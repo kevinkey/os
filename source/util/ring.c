@@ -1,8 +1,10 @@
 #include "ring.h"
+#include "mem.h"
 #include <string.h>
 
 void ring_init(struct ring_t * ring)
 {
+    ring->buffer = mem_alloc(ring->LENGTH);
     ring->head = 0;
     ring->tail = 0;
     ring->full = false;
@@ -48,17 +50,17 @@ bool ring_write(struct ring_t * ring, uint8_t const data[], size_t length)
         {
             size_t amount_wrapped = length - room_to_end;
 
-            memcpy(&ring->BUFFER[ring->tail], data, room_to_end);
+            memcpy(&ring->buffer[ring->tail], data, room_to_end);
             if (amount_wrapped > 0)
             {
-                memcpy(ring->BUFFER, &data[room_to_end], amount_wrapped);
+                memcpy(ring->buffer, &data[room_to_end], amount_wrapped);
             }
 
             ring->tail = amount_wrapped;
         }
         else
         {
-            memcpy(&ring->BUFFER[ring->tail], data, length);
+            memcpy(&ring->buffer[ring->tail], data, length);
             ring->tail += length;
         }
     }
@@ -83,17 +85,17 @@ bool ring_read(struct ring_t * ring, uint8_t data[], size_t length)
         {
             size_t amount_wrapped = length - data_to_end;
 
-            memcpy(data, &ring->BUFFER[ring->head], data_to_end);
+            memcpy(data, &ring->buffer[ring->head], data_to_end);
             if (amount_wrapped > 0)
             {
-                memcpy(&data[data_to_end], ring->BUFFER, amount_wrapped);
+                memcpy(&data[data_to_end], ring->buffer, amount_wrapped);
             }
 
             ring->head = amount_wrapped;
         }
         else
         {
-            memcpy(data, &ring->BUFFER[ring->head], length);
+            memcpy(data, &ring->buffer[ring->head], length);
             ring->head += length;
         }
     }

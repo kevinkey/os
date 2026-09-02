@@ -1,3 +1,5 @@
+#ifdef SHELL_UART
+
 #include "shell_uart.h"
 #include "uart.h"
 
@@ -119,3 +121,5 @@ struct shell_cmd_t Shell_Uart =
     "    $ uart <id> status\n",
     .FUNCTION = uart_cmd,
 };
+
+#endif

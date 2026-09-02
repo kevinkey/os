@@ -45,16 +45,26 @@ size_t uart_get(char str[], size_t length)
     {
         bool eos = false;
 
-        if (uart_read(&Uart, (uint8_t *)&str[i], 1u, 0))
+        if (uart_read(&Uart, (uint8_t *)&str[i], 1, 0))
         {
-            uart_write(&Uart, (uint8_t *)&str[i], 1);
-
             switch(str[i])
             {
-                case '\n': uart_write(&Uart, (uint8_t[]){'\r'}, 1); eos = true; break;
-                case '\r': uart_write(&Uart, (uint8_t[]){'\n'}, 1); eos = true; break;
-                case '\b': i--; break;
-                default: i++; break;
+                case '\n':
+                case '\r':
+                    uart_write(&Uart, (uint8_t *)"\r\n", 2);
+                    eos = true;
+                    break;
+                case '\b':
+                    if (i > 0)
+                    {
+                        uart_write(&Uart, "\b", 1);
+                        i--;
+                    }
+                    break;
+                default:
+                    uart_write(&Uart, (uint8_t *)&str[i], 1);
+                    i++;
+                    break;
             }
 
             if (eos) { break; }

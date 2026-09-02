@@ -1,4 +1,5 @@
 #include "shell.h"
+#include "shell_mem.h"
 #include "shell_time.h"
 #ifdef SHELL_UART
 #include "shell_uart.h"
@@ -66,11 +67,12 @@ void shell_init(struct shell_t * shell)
 {
     list_init(&shell->cmd);
     shell_register(shell, &Help);
-    shell_register(shell, &Exit);
+    shell_register(shell, &Shell_Mem);
     shell_register(shell, &Shell_Time);
 #ifdef SHELL_UART
     shell_register(shell, &Shell_Uart);
 #endif
+    shell_register(shell, &Exit);
 }
 
 void shell_register(struct shell_t * shell, struct shell_cmd_t * cmd)
