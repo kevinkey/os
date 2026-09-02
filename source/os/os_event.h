@@ -1,13 +1,13 @@
-#ifndef EVENT_H
-#define EVENT_H
+#ifndef OS_EVENT_H
+#define OS_EVENT_H
 
 #include "types.h"
 #include "time.h"
 
-typedef bool event_t;
+typedef bool os_event_t;
 
-void event_clear(event_t * event);
-void event_set(event_t * event);
-bool event_wait(event_t * event, uint32_t timeout);
+void os_event_clear(os_event_t * event);
+void os_event_set(os_event_t * event);
+bool os_event_wait(os_event_t * event, uint32_t timeout);
 
 #endif

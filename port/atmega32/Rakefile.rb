@@ -8,13 +8,13 @@ desc "Build the atmega32 port"
 task :build do
     FileUtils.mkdir_p("build")
 
-    includes = Dir["../../source/**/"]
-    files = [
-        "main.c",
+    includes = Dir["../../source/**/", "**/"]
+    defines = ["F_CPU=8000000"]
+    files = Dir["**/*.c"] + [
+        "../../source/hal/uart.c",
         "../../source/shell/shell.c",
         "../../source/shell/shell_time.c",
-        "../../source/os/os_time.c",
-    ] + Dir["../../source/util/*.c"]
+    ] + Dir["../../source/os/*.c"] + Dir["../../source/util/*.c"]
 
     objects = files.map {|f| File.join("build", File.basename(f).sub(".c", ".o"))}
 
@@ -25,6 +25,7 @@ task :build do
             "-Os",
             "-mmcu=atmega32",
             includes.map {|i| "-I#{i}"},
+            defines.map {|d| "-D#{d}"},
             "-c", c,
             "-o", objects[i]
         ]
@@ -32,6 +33,7 @@ task :build do
     end
 
     run(["avr-gcc", "-mmcu=atmega32", objects, "-o", "build/main.elf"])
+    run(%W[avr-size --format=avr --mcu=atmega32 build/main.elf])
     run(%W[avr-objcopy -O ihex -R .eeprom build/main.elf build/main.hex])
 end
 

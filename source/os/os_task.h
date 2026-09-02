@@ -1,13 +1,13 @@
-#ifndef TASK_H
-#define TASK_H
+#ifndef OS_TASK_H
+#define OS_TASK_H
 
 #include "types.h"
-#include "event.h"
+#include "os_event.h"
 #include "list.h"
 #include "stack.h"
 #include "time.h"
 
-enum task_priority_t
+enum os_task_priority_t
 {
     TASK_PRIORITY_LOW,
     TASK_PRIORITY_NORMAL,
@@ -20,21 +20,21 @@ struct task_config_t
     void (*func)(void);
     uint_t * stack;
     uint_t size;
-    enum task_priority_t priority;
+    enum os_task_priority_t priority;
 };
 
-struct task_t
+struct os_task_t
 {
     struct list_item_t item;
     struct task_config_t const * CONFIG;
-    event_t * event;
+    os_event_t * event;
     uint32_t timeout;
 };
 
-void task_init(struct task_t * task);
-bool task_wait(struct task_t * task, event_t * event, uint32_t timeout);
-bool task_ready(struct task_t * task);
-void task_save(struct task_t * task);
-void task_load(struct task_t * task);
+void os_task_init(struct os_task_t * task);
+bool os_task_wait(struct os_task_t * task, os_event_t * event, uint32_t timeout);
+bool os_task_ready(struct os_task_t * task);
+void os_task_save(struct os_task_t * task);
+void os_task_load(struct os_task_t * task);
 
 #endif

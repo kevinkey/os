@@ -3,15 +3,10 @@
 
 #include "types.h"
 
-struct ring_config_t
-{
-    uint8_t * buffer;
-    size_t length;
-};
-
 struct ring_t
 {
-    struct ring_config_t const * CONFIG;
+    uint8_t * BUFFER;
+    size_t LENGTH;
     size_t head;
     size_t tail;
     bool full;

@@ -1,7 +1,3 @@
-#define F_CPU 8000000UL // Define clock speed (change if using a different crystal)
-#define BAUD 9600
-#define MYUBRR F_CPU/16/BAUD-1
-
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
@@ -9,17 +5,8 @@
 #include "shell.h"
 #include "numstr.h"
 #include "os_time.h"
-
-// Initialize UART
-void uart_init(unsigned int ubrr) {
-    // Set baud rate registers
-    UBRRH = (unsigned char)(ubrr >> 8);
-    UBRRL = (unsigned char)ubrr;
-    // Enable transmitter and receiver
-    UCSRB = (1 << TXEN) | (1 << RXEN);
-    // Set frame format: 8 data bits, 1 stop bit
-    UCSRC = (1 << URSEL) | (1 << UCSZ1) | (1 << UCSZ0);
-}
+#include "uart_atmega32.h"
+#include <string.h>
 
 void timer1_init(void) {
     // 1. Set CTC mode (Clear Timer on Compare Match)
@@ -42,29 +29,12 @@ ISR(TIMER1_COMPA_vect)
     os_time_increment(1);
 }
 
-// Transmit a single character
-void uart_transmit(char data) {
-    // Wait for empty transmit buffer
-    while (!(UCSRA & (1 << UDRE)));
-    // Put data into buffer, sends the data
-    UDR = data;
-}
-
-char uart_receive(void) {
-    // Wait for data to be received (RXC flag becomes 1)
-    while (!(UCSRA & (1 << RXC)));
-
-    // Get and return received data from buffer
-    return UDR;
-}
-
 void uart_put(char const str[])
 {
-    while (*str)
-    {
-        if (*str == '\n') { uart_transmit('\r'); }
-        uart_transmit(*str++);
-    }
+    size_t len = strlen(str);
+
+    uart_write(&Uart, (uint8_t const *)str, len);
+    if (str[len - 1] == '\n') { uart_write(&Uart, (uint8_t[]){'\r'}, 1); }
 }
 
 size_t uart_get(char str[], size_t length)
@@ -75,18 +45,20 @@ size_t uart_get(char str[], size_t length)
     {
         bool eos = false;
 
-        str[i] = uart_receive();
-        uart_transmit(str[i]);
-
-        switch(str[i])
+        if (uart_read(&Uart, (uint8_t *)&str[i], 1u, 0))
         {
-            case '\n': uart_transmit('\r'); eos = true; break;
-            case '\r': uart_transmit('\n'); eos = true; break;
-            case '\b': i--; break;
-            default: i++; break;
-        }
+            uart_write(&Uart, (uint8_t *)&str[i], 1);
 
-        if (eos) { break; }
+            switch(str[i])
+            {
+                case '\n': uart_write(&Uart, (uint8_t[]){'\r'}, 1); eos = true; break;
+                case '\r': uart_write(&Uart, (uint8_t[]){'\n'}, 1); eos = true; break;
+                case '\b': i--; break;
+                default: i++; break;
+            }
+
+            if (eos) { break; }
+        }
     }
     while (i < length);
 
@@ -105,11 +77,12 @@ int main(void) {
 
     shell_init(&Shell);
 
+    uart_init(&Uart);
+    uart_config(&Uart, 9600, UART_PARITY_NONE, UART_STOP_1);
+    uart_enable(&Uart, true, true);
+
     // Set Pin 0 of Port B as an output
     DDRB |= (1 << PB0);
-
-    // Initialize UART peripheral
-    uart_init(MYUBRR);
 
     // Initialize the timer
     timer1_init();

@@ -1,11 +1,11 @@
-#include "task.h"
-#include "irq.h"
-#include "system.h"
+#include "os_task.h"
+#include "os_time.h"
+#include "os.h"
 #include <string.h>
 
 static uint8_t const Sentinel[] = {0x12, 0x34, 0x56, 0x78};
 
-void task_init(struct task_t * task)
+void os_task_init(struct os_task_t * task)
 {
     uint8_t * stack = (uint8_t *)&(task->CONFIG->stack[task->CONFIG->size]) - sizeof(Sentinel);
 
@@ -17,28 +17,25 @@ void task_init(struct task_t * task)
     stack_init(task->CONFIG->stack, task->CONFIG->func);
 
     task->event = NULL;
-    system_add_task(task);
+    os_add_task(task);
 }
 
-bool task_wait(struct task_t * task, event_t * event, uint32_t timeout)
+bool os_task_wait(struct os_task_t * task, os_event_t * event, uint32_t timeout)
 {
-    irq_disable();
-
+    os_enter_critical();
     task->event = event;
-    task->timeout = time_now() + timeout;
-
-    system_yield();
-
-    irq_enable();
+    task->timeout = os_time_now() + timeout;
+    os_yield();
+    os_exit_critical();
 
     return ((task->event != NULL) && *(task->event));
 }
 
-bool task_ready(struct task_t * task)
+bool os_task_ready(struct os_task_t * task)
 {
     bool ready;
 
-    if(time_now() >= task->timeout)
+    if(os_time_now() >= task->timeout)
     {
         ready = true;
     }
@@ -54,7 +51,7 @@ bool task_ready(struct task_t * task)
     return ready;
 }
 
-void task_save(struct task_t * task)
+void os_task_save(struct os_task_t * task)
 {
     stack_save(task->CONFIG->stack);
 
@@ -69,7 +66,7 @@ void task_save(struct task_t * task)
     }
 }
 
-void task_load(struct task_t * task)
+void os_task_load(struct os_task_t * task)
 {
     stack_load(task->CONFIG->stack);
 }

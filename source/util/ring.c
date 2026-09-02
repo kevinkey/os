@@ -14,7 +14,7 @@ size_t ring_count(struct ring_t * ring)
 
     if (ring->full)
     {
-        count = ring->CONFIG->length;
+        count = ring->LENGTH;
     }
     else if (ring->tail >= ring->head)
     {
@@ -22,7 +22,7 @@ size_t ring_count(struct ring_t * ring)
     }
     else
     {
-        count = (ring->CONFIG->length - ring->head) + ring->tail;
+        count = (ring->LENGTH - ring->head) + ring->tail;
     }
 
     return count;
@@ -30,7 +30,7 @@ size_t ring_count(struct ring_t * ring)
 
 size_t ring_space(struct ring_t * ring)
 {
-    return ring->CONFIG->length - ring_count(ring);
+    return ring->LENGTH - ring_count(ring);
 }
 
 bool ring_write(struct ring_t * ring, uint8_t const data[], size_t length)
@@ -42,23 +42,23 @@ bool ring_write(struct ring_t * ring, uint8_t const data[], size_t length)
     {
         ring->full = (space == length);
 
-        size_t room_to_end = ring->CONFIG->length - ring->tail;
+        size_t room_to_end = ring->LENGTH - ring->tail;
 
         if (room_to_end <= length)
         {
             size_t amount_wrapped = length - room_to_end;
 
-            memcpy(&ring->CONFIG->buffer[ring->tail], data, room_to_end);
+            memcpy(&ring->BUFFER[ring->tail], data, room_to_end);
             if (amount_wrapped > 0)
             {
-                memcpy(ring->CONFIG->buffer, &data[room_to_end], amount_wrapped);
+                memcpy(ring->BUFFER, &data[room_to_end], amount_wrapped);
             }
 
             ring->tail = amount_wrapped;
         }
         else
         {
-            memcpy(&ring->CONFIG->buffer[ring->tail], data, length);
+            memcpy(&ring->BUFFER[ring->tail], data, length);
             ring->tail += length;
         }
     }
@@ -77,23 +77,23 @@ bool ring_read(struct ring_t * ring, uint8_t data[], size_t length)
             ring->full = false;
         }
 
-        size_t data_to_end = ring->CONFIG->length - ring->head;
+        size_t data_to_end = ring->LENGTH - ring->head;
 
         if (data_to_end <= length)
         {
             size_t amount_wrapped = length - data_to_end;
 
-            memcpy(data, &ring->CONFIG->buffer[ring->head], data_to_end);
+            memcpy(data, &ring->BUFFER[ring->head], data_to_end);
             if (amount_wrapped > 0)
             {
-                memcpy(&data[data_to_end], ring->CONFIG->buffer, amount_wrapped);
+                memcpy(&data[data_to_end], ring->BUFFER, amount_wrapped);
             }
 
             ring->head = amount_wrapped;
         }
         else
         {
-            memcpy(data, &ring->CONFIG->buffer[ring->head], length);
+            memcpy(data, &ring->BUFFER[ring->head], length);
             ring->head += length;
         }
     }
