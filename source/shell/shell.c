@@ -106,7 +106,11 @@ void shell_process(struct shell_t * shell)
 
 void shell_put(struct shell_t * shell, char const string[])
 {
-    shell->CONFIG->put(string);
+    for (size_t i = 0; string[i] != '\0'; i++)
+    {
+        if (string[i] == '\n') { shell->CONFIG->put('\r'); }
+        shell->CONFIG->put(string[i]);
+    }
 }
 
 size_t shell_find(struct shell_t * shell, char const * string[], size_t count)

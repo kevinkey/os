@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "list.h"
+#include "os_task.h"
 
 #ifndef SHELL_LINE_SIZE
 #define SHELL_LINE_SIZE 80
@@ -10,13 +11,14 @@
 
 struct shell_config_t
 {
-    void (*put)(char const str[]);
+    void (*put)(char c);
     size_t (*get)(char str[], size_t length);
 };
 
 struct shell_t
 {
     struct list_t cmd;
+    struct os_task_t task;
     struct shell_config_t const * CONFIG;
     char in[SHELL_LINE_SIZE];
     char out[SHELL_LINE_SIZE];

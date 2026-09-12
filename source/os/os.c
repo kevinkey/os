@@ -24,8 +24,12 @@ struct os_task_t Idle =
     }
 };
 
+void UART_TxString(const char *str);
+
 static void schedule_task(void)
 {
+    struct os_task_t * prev = Active_Task;
+
     Active_Task = &Idle;
 
     LIST_FOR_EACH(&Task_List, struct os_task_t *, task)
@@ -38,6 +42,11 @@ static void schedule_task(void)
         {
             Active_Task = task;
         }
+    }
+
+    if (prev != Active_Task)
+    {
+        UART_TxString(Active_Task->CONFIG->name);
     }
 }
 
@@ -64,6 +73,15 @@ uint8_t * os_tick(uint32_t amount, uint8_t * stack)
 {
     if (Active_Task != NULL) { os_task_save(Active_Task, stack); }
     os_time_increment(amount);
+
+    static uint32_t last_time = 0;
+
+    if (os_time_elapsed(last_time) >= 1000)
+    {
+        last_time = os_time_now();
+        UART_TxString("SECOND\r\n");
+    }
+
     schedule_task();
     return os_task_load(Active_Task);
 }
@@ -73,9 +91,17 @@ void os_add_task(struct os_task_t * task)
     list_add(&Task_List, (struct list_item_t *)task, LIST_ADD_HEAD);
 }
 
+#include <avr/io.h>
+
 void os_yield(void)
 {
-    //(void)os_tick(0, (uint8_t *)SP);
+    STACK_SAVE();
+    uint8_t * stack = (uint8_t * )SP;
+    stack = os_tick(0, stack);
+    SP = (uint16_t)stack;
+    STACK_LOAD();
+
+    __asm__ __volatile__ ("reti");
 }
 
 void os_enter_critical(void)

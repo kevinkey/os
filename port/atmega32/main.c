@@ -57,12 +57,9 @@ ISR(TIMER1_COMPA_vect, ISR_NAKED)
     __asm__ __volatile__ ("reti");
 }
 
-void uart_put(char const str[])
+void uart_put(char c)
 {
-    size_t len = strlen(str);
-
-    uart_write(&Uart, (uint8_t const *)str, len);
-    if (str[len - 1] == '\n') { uart_write(&Uart, (uint8_t[]){'\r'}, 1); }
+    uart_write(&Uart, (uint8_t *)&c, 1);
 }
 
 size_t uart_get(char str[], size_t length)
@@ -103,13 +100,29 @@ size_t uart_get(char str[], size_t length)
     return i;
 }
 
+static void shell_func(void);
+
 struct shell_t Shell =
 {
+    .task = {
+        .CONFIG = &(struct task_config_t){
+            .name = "SHELL\r\n",
+            .func = shell_func,
+            .priority = TASK_PRIORITY_NORMAL,
+            .size = 128,
+            .stack = (uint8_t[128]){0}
+        }
+    },
     .CONFIG = &(struct shell_config_t){
         .put = uart_put,
         .get = uart_get
     }
 };
+
+static void shell_func(void)
+{
+    while (true) { shell_process(&Shell); }
+}
 
 static void Blink(void);
 
@@ -125,19 +138,10 @@ struct os_task_t Blinky = {
 
 static void Blink(void)
 {
-    uint32_t last_time = 0;
-
     while (true)
     {
-        if (os_time_elapsed(last_time) >= 1000)
-        {
-            last_time = os_time_now();
-
-            UART_TxString("B\r\n");
-
-            // Toggle the LED on
-            PORTB ^= (1 << PB0);
-        }
+        os_task_wait(&Blinky, NULL, 1000);
+        PORTB ^= (1 << PB0);
     }
 }
 
@@ -184,20 +188,4 @@ int main(void) {
     UART_TxString("Starting...\r\n");
 
     os_start();
-
-    while (true);
-
-    //uint32_t last_time = 0;
-//
-    //while (1) {
-    //    shell_process(&Shell);
-//
-    //    if (os_time_elapsed(last_time) >= 1000)
-    //    {
-    //        last_time = os_time_now();
-//
-    //        // Toggle the LED on
-    //        // PORTB ^= (1 << PB0);
-    //    }
-    //}
 }
