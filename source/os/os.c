@@ -3,19 +3,20 @@
 #include "irq.h"
 #include "list.h"
 
-struct list_t Task_List;
 struct os_task_t * Active_Task;
+static struct list_t Task_List;
 static uint8_t Critical;
 
 static void idle_task(void)
 {
-    while (true) { /* do nothing */ }
+    while (true);
 }
 
-uint_t Stack[STACK_CONTEXT_SIZE];
+uint8_t Stack[STACK_CONTEXT_SIZE];
 struct os_task_t Idle =
 {
     .CONFIG = &(struct task_config_t) {
+        .name = "IDLE\r\n",
         .func = idle_task,
         .stack = Stack,
         .size = STACK_CONTEXT_SIZE,
@@ -42,39 +43,39 @@ static void schedule_task(void)
 
 void os_init(void)
 {
-    Critical = 0u;
     irq_disable();
+    Critical = 0u;
 
     list_init(&Task_List);
     os_task_init(&Idle);
+    Active_Task = NULL;
 }
 
 void os_start(void)
 {
-    schedule_task();
-    os_task_load(Active_Task);
+    //schedule_task();
+    //os_task_load(Active_Task);
 
     irq_enable();
+    while (true);
 }
 
-void os_tick(uint32_t amount)
+uint8_t * os_tick(uint32_t amount, uint8_t * stack)
 {
-    os_task_save(Active_Task);
+    if (Active_Task != NULL) { os_task_save(Active_Task, stack); }
     os_time_increment(amount);
     schedule_task();
-    os_task_load(Active_Task);
+    return os_task_load(Active_Task);
 }
 
 void os_add_task(struct os_task_t * task)
 {
-    os_enter_critical();
     list_add(&Task_List, (struct list_item_t *)task, LIST_ADD_HEAD);
-    os_exit_critical();
 }
 
 void os_yield(void)
 {
-    os_tick(0);
+    //(void)os_tick(0, (uint8_t *)SP);
 }
 
 void os_enter_critical(void)

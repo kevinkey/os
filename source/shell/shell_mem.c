@@ -5,7 +5,7 @@
 
 static bool mem_cmd(struct shell_t * shell)
 {
-    char str[32] = "";
+    char str[20] = "";
 
     strcat(str, "Total: ");
     numstr_dec(str, MEM_SIZE, 0);

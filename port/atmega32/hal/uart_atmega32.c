@@ -80,7 +80,6 @@ ISR(USART_UDRE_vect)
 ISR(USART_RXC_vect)
 {
     uint8_t byte = UDR;
-    PORTB ^= (1 << PB0);
 
     if (ring_write(&Uart.rx, &byte, 1))
     {

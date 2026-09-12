@@ -4,9 +4,29 @@
 
 #include "shell.h"
 #include "numstr.h"
+#include "os.h"
+#include "os_task.h"
 #include "os_time.h"
 #include "uart_atmega32.h"
 #include <string.h>
+
+void UART_TxChar(char data) {
+    // Wait until the transmit buffer (UDR) is empty and ready for new data
+    while (!(UCSRA & (1 << UDRE))) {
+        // Do nothing, just loop (this is the blocking part)
+    }
+
+    // Put data into the buffer, which sends the byte
+    UDR = data;
+}
+
+// 3. Blocking Transmit for an entire string
+void UART_TxString(const char *str) {
+    while (*str) {
+        UART_TxChar(*str);
+        str++;
+    }
+}
 
 void timer1_init(void) {
     // 1. Set CTC mode (Clear Timer on Compare Match)
@@ -24,9 +44,17 @@ void timer1_init(void) {
     TCCR1B |= (1 << CS11);
 }
 
-ISR(TIMER1_COMPA_vect)
+ISR(TIMER1_COMPA_vect, ISR_NAKED)
 {
-    os_time_increment(1);
+    STACK_SAVE();
+    uint8_t * stack = (uint8_t * )SP;
+
+    stack = os_tick(1, stack);
+
+    SP = (uint16_t)stack;
+    STACK_LOAD();
+
+    __asm__ __volatile__ ("reti");
 }
 
 void uart_put(char const str[])
@@ -57,7 +85,7 @@ size_t uart_get(char str[], size_t length)
                 case '\b':
                     if (i > 0)
                     {
-                        uart_write(&Uart, "\b", 1);
+                        uart_write(&Uart, (uint8_t *)"\b", 1);
                         i--;
                     }
                     break;
@@ -83,35 +111,93 @@ struct shell_t Shell =
     }
 };
 
-int main(void) {
+static void Blink(void);
 
-    shell_init(&Shell);
+struct os_task_t Blinky = {
+    .CONFIG = &(struct task_config_t){
+        .name = "BLINK\r\n",
+        .func = Blink,
+        .priority = TASK_PRIORITY_NORMAL,
+        .size = 128,
+        .stack = (uint8_t[128]){0}
+    }
+};
 
-    uart_init(&Uart);
-    uart_config(&Uart, 9600, UART_PARITY_NONE, UART_STOP_1);
-    uart_enable(&Uart, true, true);
-
-    // Set Pin 0 of Port B as an output
-    DDRB |= (1 << PB0);
-
-    // Initialize the timer
-    timer1_init();
-
-    // Enable global interrupts
-    sei();
-
+static void Blink(void)
+{
     uint32_t last_time = 0;
 
-    while (1) {
-
-        shell_process(&Shell);
-
+    while (true)
+    {
         if (os_time_elapsed(last_time) >= 1000)
         {
             last_time = os_time_now();
+
+            UART_TxString("B\r\n");
 
             // Toggle the LED on
             PORTB ^= (1 << PB0);
         }
     }
+}
+
+int main(void) {
+
+    // 1. Read the current status register
+    uint8_t reset_reason = MCUCSR;
+
+    // 2. Clear the flags right away so the next reset records accurately
+    MCUCSR = 0x00;
+
+    // Set Pin 0 of Port B as an output
+    DDRB |= (1 << PB0);
+
+    os_init();
+    os_task_init(&Blinky);
+
+    //shell_init(&Shell);
+
+    // Initialize the timer
+    timer1_init();
+
+    uart_init(&Uart);
+    uart_config(&Uart, 9600, UART_PARITY_NONE, UART_STOP_1);
+    uart_enable(&Uart, true, false);
+
+    // 3. Process the results
+    if (reset_reason & (1 << PORF)) {
+        UART_TxString("POR\r\n");
+    }
+    if (reset_reason & (1 << EXTRF)) {
+        UART_TxString("EXT\r\n");
+    }
+    if (reset_reason & (1 << BORF)) {
+        UART_TxString("BOR\r\n");
+    }
+    if (reset_reason & (1 << WDRF)) {
+        UART_TxString("WDR\r\n");
+    }
+    if (reset_reason & (1 << JTRF)) {
+        UART_TxString("JTR\r\n");
+    }
+
+    UART_TxString("Starting...\r\n");
+
+    os_start();
+
+    while (true);
+
+    //uint32_t last_time = 0;
+//
+    //while (1) {
+    //    shell_process(&Shell);
+//
+    //    if (os_time_elapsed(last_time) >= 1000)
+    //    {
+    //        last_time = os_time_now();
+//
+    //        // Toggle the LED on
+    //        // PORTB ^= (1 << PB0);
+    //    }
+    //}
 }

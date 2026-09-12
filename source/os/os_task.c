@@ -7,14 +7,14 @@ static uint8_t const Sentinel[] = {0x12, 0x34, 0x56, 0x78};
 
 void os_task_init(struct os_task_t * task)
 {
-    uint8_t * stack = (uint8_t *)&(task->CONFIG->stack[task->CONFIG->size]) - sizeof(Sentinel);
-
-    while(stack >= (uint8_t *)task->CONFIG->stack)
-    {
-        memcpy(stack, Sentinel, sizeof(Sentinel));
-        stack -= sizeof(Sentinel);
-    }
-    stack_init(task->CONFIG->stack, task->CONFIG->func);
+    //uint8_t * stack = (uint8_t *)&(task->CONFIG->stack[task->CONFIG->size]) - sizeof(Sentinel);
+//
+    //while(stack >= (uint8_t *)task->CONFIG->stack)
+    //{
+    //    memcpy(stack, Sentinel, sizeof(Sentinel));
+    //    stack -= sizeof(Sentinel);
+    //}
+    task->stack = stack_init(task->CONFIG->stack, task->CONFIG->size, task->CONFIG->func);
 
     task->event = NULL;
     os_add_task(task);
@@ -51,22 +51,12 @@ bool os_task_ready(struct os_task_t * task)
     return ready;
 }
 
-void os_task_save(struct os_task_t * task)
+void os_task_save(struct os_task_t * task, uint8_t * stack)
 {
-    stack_save(task->CONFIG->stack);
-
-    uint8_t * p_stack = (uint8_t *)&(task->CONFIG->stack[task->CONFIG->size]) - sizeof(Sentinel);
-
-    if(0 != memcmp(p_stack, Sentinel, sizeof(Sentinel)))
-    {
-        while(true)
-        {
-            /* stack overflow detected */
-        }
-    }
+    task->stack = stack;
 }
 
-void os_task_load(struct os_task_t * task)
+uint8_t * os_task_load(struct os_task_t * task)
 {
-    stack_load(task->CONFIG->stack);
+    return task->stack;
 }
