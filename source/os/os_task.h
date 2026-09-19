@@ -38,5 +38,6 @@ bool os_task_wait(struct os_task_t * task, os_event_t * event, uint32_t timeout)
 bool os_task_ready(struct os_task_t * task);
 void os_task_save(struct os_task_t * task, uint8_t * stack);
 uint8_t * os_task_load(struct os_task_t * task);
+struct os_task_t * os_task_next(void);
 
 #endif

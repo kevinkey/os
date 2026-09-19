@@ -63,6 +63,41 @@ static struct shell_cmd_t Exit =
     .FUNCTION = exit_cmd,
 };
 
+static void read_cmd(struct shell_t * shell)
+{
+    size_t i = 0;
+
+    while (i < SHELL_LINE_SIZE)
+    {
+        bool eos = false;
+
+        shell->in[i] = shell->CONFIG->get();
+
+        switch(shell->in[i])
+        {
+            case '\n':
+            case '\r':
+                shell->CONFIG->put('\r');
+                shell->CONFIG->put('\n');
+                eos = true;
+                break;
+            case '\b':
+                if (i > 0)
+                {
+                    shell->CONFIG->put('\b');
+                    i--;
+                }
+                break;
+            default:
+                shell->CONFIG->put(shell->in[i]);
+                i++;
+                break;
+        }
+
+        if (eos) { break; }
+    }
+}
+
 void shell_init(struct shell_t * shell)
 {
     list_init(&shell->cmd);
@@ -73,6 +108,8 @@ void shell_init(struct shell_t * shell)
     shell_register(shell, &Shell_Uart);
 #endif
     shell_register(shell, &Exit);
+
+    os_task_init(&shell->task);
 }
 
 void shell_register(struct shell_t * shell, struct shell_cmd_t * cmd)
@@ -87,7 +124,7 @@ void shell_process(struct shell_t * shell)
     while (!shell->shutdown)
     {
         shell_put(shell, "$ ");
-        (void)shell->CONFIG->get(shell->in, SHELL_LINE_SIZE);
+        read_cmd(shell);
         char * line = shell->in;
 
         if (line = strtok(line, " \t\n\r\f\v"))

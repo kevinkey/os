@@ -12,7 +12,7 @@
 struct shell_config_t
 {
     void (*put)(char c);
-    size_t (*get)(char str[], size_t length);
+    char (*get)(void);
 };
 
 struct shell_t

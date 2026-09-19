@@ -62,42 +62,17 @@ void uart_put(char c)
     uart_write(&Uart, (uint8_t *)&c, 1);
 }
 
-size_t uart_get(char str[], size_t length)
+extern struct shell_t Shell;
+
+char uart_get(void)
 {
-    size_t i = 0;
-
-    do
+    uint8_t byte;
+    while (!uart_read(&Uart, &byte, 1, 0))
     {
-        bool eos = false;
-
-        if (uart_read(&Uart, (uint8_t *)&str[i], 1, 0))
-        {
-            switch(str[i])
-            {
-                case '\n':
-                case '\r':
-                    uart_write(&Uart, (uint8_t *)"\r\n", 2);
-                    eos = true;
-                    break;
-                case '\b':
-                    if (i > 0)
-                    {
-                        uart_write(&Uart, (uint8_t *)"\b", 1);
-                        i--;
-                    }
-                    break;
-                default:
-                    uart_write(&Uart, (uint8_t *)&str[i], 1);
-                    i++;
-                    break;
-            }
-
-            if (eos) { break; }
-        }
+        os_task_wait(&Shell.task, NULL, 1);
     }
-    while (i < length);
 
-    return i;
+    return byte;
 }
 
 static void shell_func(void);
@@ -109,8 +84,8 @@ struct shell_t Shell =
             .name = "SHELL\r\n",
             .func = shell_func,
             .priority = TASK_PRIORITY_NORMAL,
-            .size = 128,
-            .stack = (uint8_t[128]){0}
+            .size = 256,
+            .stack = (uint8_t[256]){0}
         }
     },
     .CONFIG = &(struct shell_config_t){
@@ -159,14 +134,14 @@ int main(void) {
     os_init();
     os_task_init(&Blinky);
 
-    //shell_init(&Shell);
+    uart_init(&Uart);
+    uart_config(&Uart, 9600, UART_PARITY_NONE, UART_STOP_1);
+    uart_enable(&Uart, true, true);
+
+    shell_init(&Shell);
 
     // Initialize the timer
     timer1_init();
-
-    uart_init(&Uart);
-    uart_config(&Uart, 9600, UART_PARITY_NONE, UART_STOP_1);
-    uart_enable(&Uart, true, false);
 
     // 3. Process the results
     if (reset_reason & (1 << PORF)) {
