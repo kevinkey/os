@@ -3,14 +3,12 @@
 #include "irq.h"
 #include "list.h"
 
-struct os_task_t * Active_Task;
 static uint8_t Critical;
 
 void os_init(void)
 {
     irq_disable();
     Critical = 0u;
-    Active_Task = NULL;
 }
 
 void os_start(void)
@@ -21,7 +19,7 @@ void os_start(void)
 
 uint8_t * os_tick(uint32_t amount, uint8_t * stack)
 {
-    if (Active_Task != NULL) { os_task_save(Active_Task, stack); }
+    os_task_save(os_task_current, stack);
     os_time_increment(amount);
 
     static uint32_t last_time = 0;
@@ -31,8 +29,8 @@ uint8_t * os_tick(uint32_t amount, uint8_t * stack)
         last_time = os_time_now();
     }
 
-    Active_Task = os_task_next();
-    return os_task_load(Active_Task);
+    os_task_next();
+    return os_task_load(os_task_current);
 }
 
 #include <avr/io.h>

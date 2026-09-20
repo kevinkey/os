@@ -30,14 +30,19 @@ struct os_task_t
     struct task_config_t * CONFIG;
     os_event_t * event;
     uint32_t timeout;
+    //uint32_t count;
     uint8_t * stack;
 };
+
+extern struct list_t os_tasks;
+extern struct os_task_t * os_task_current;
 
 void os_task_init(struct os_task_t * task);
 bool os_task_wait(struct os_task_t * task, os_event_t * event, uint32_t timeout);
 bool os_task_ready(struct os_task_t * task);
 void os_task_save(struct os_task_t * task, uint8_t * stack);
 uint8_t * os_task_load(struct os_task_t * task);
-struct os_task_t * os_task_next(void);
+size_t os_task_usage(struct os_task_t * task);
+void os_task_next(void);
 
 #endif

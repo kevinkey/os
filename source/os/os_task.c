@@ -5,9 +5,10 @@
 #include "irq.h"
 #include <string.h>
 
-static bool Task_Init = false;
-static struct list_t Task_List;
+struct list_t os_tasks;
+struct os_task_t * os_task_current;
 
+static bool Task_Init = false;
 static uint8_t const Sentinel[] = {0x12, 0x34, 0x56, 0x78};
 
 static void idle_task(void)
@@ -19,7 +20,7 @@ static uint8_t Stack[STACK_CONTEXT_SIZE];
 static struct os_task_t Idle =
 {
     .CONFIG = &(struct task_config_t) {
-        .name = "IDLE\r\n",
+        .name = "IDLE",
         .func = idle_task,
         .stack = Stack,
         .size = STACK_CONTEXT_SIZE,
@@ -32,18 +33,22 @@ void os_task_init(struct os_task_t * task)
     if (!Task_Init)
     {
         Task_Init = true;
-        list_init(&Task_List);
+        list_init(&os_tasks);
         os_task_init(&Idle);
+        os_task_current = NULL;
     }
 
-    for (size_t i = 0u; (i + sizeof(Sentinel)) < task->CONFIG->size; i += sizeof(Sentinel))
+    //task->count = 0;
+
+    for (size_t i = 0; i < task->CONFIG->size; i++)
     {
-        memcpy(task->CONFIG->stack, Sentinel, sizeof(Sentinel));
+        uint8_t sentinel = Sentinel[i & (sizeof(Sentinel) - 1)];
+        task->CONFIG->stack[i] = sentinel;
     }
     task->stack = stack_init(task->CONFIG->stack, task->CONFIG->size, task->CONFIG->func);
 
     task->event = NULL;
-    list_add(&Task_List, (struct list_item_t *)task, LIST_ADD_HEAD);
+    list_add(&os_tasks, (struct list_item_t *)task, LIST_ADD_HEAD);
 }
 
 bool os_task_wait(struct os_task_t * task, os_event_t * event, uint32_t timeout)
@@ -79,7 +84,7 @@ bool os_task_ready(struct os_task_t * task)
 
 void os_task_save(struct os_task_t * task, uint8_t * stack)
 {
-    task->stack = stack;
+    if (task != NULL) { task->stack = stack; }
 }
 
 uint8_t * os_task_load(struct os_task_t * task)
@@ -89,24 +94,25 @@ uint8_t * os_task_load(struct os_task_t * task)
 
 size_t os_task_usage(struct os_task_t * task)
 {
-    size_t index;
+    size_t i;
 
-    for (index = 0; index < task->CONFIG->size; index++)
+    for (i = 0; i < task->CONFIG->size; i++)
     {
-        if (task->CONFIG->stack[index] != Sentinel[index & sizeof(Sentinel - 1)])
+        uint8_t sentinel = Sentinel[i & (sizeof(Sentinel) - 1)];
+        if (task->CONFIG->stack[i] != sentinel)
         {
             break;
         }
     }
 
-    return task->CONFIG->size - index;
+    return task->CONFIG->size - i;
 }
 
-struct os_task_t * os_task_next(void)
+void os_task_next(void)
 {
     struct os_task_t * next = &Idle;
 
-    LIST_FOR_EACH(&Task_List, struct os_task_t *, task)
+    LIST_FOR_EACH(&os_tasks, struct os_task_t *, task)
     {
         if (!os_task_ready(task))
         {
@@ -118,5 +124,9 @@ struct os_task_t * os_task_next(void)
         }
     }
 
-    return next;
+    if (next != os_task_current)
+    {
+        os_task_current = next;
+        //next->count++;
+    }
 }

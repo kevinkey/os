@@ -81,11 +81,11 @@ struct shell_t Shell =
 {
     .task = {
         .CONFIG = &(struct task_config_t){
-            .name = "SHELL\r\n",
+            .name = "SHELL",
             .func = shell_func,
             .priority = TASK_PRIORITY_NORMAL,
-            .size = 256,
-            .stack = (uint8_t[256]){0}
+            .size = 300,
+            .stack = (uint8_t[300]){0}
         }
     },
     .CONFIG = &(struct shell_config_t){
@@ -103,7 +103,7 @@ static void Blink(void);
 
 struct os_task_t Blinky = {
     .CONFIG = &(struct task_config_t){
-        .name = "BLINK\r\n",
+        .name = "BLINK",
         .func = Blink,
         .priority = TASK_PRIORITY_NORMAL,
         .size = 128,
