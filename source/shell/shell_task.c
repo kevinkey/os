@@ -9,7 +9,7 @@ static bool task_cmd(struct shell_t * shell)
         char str[32] = "";
 
         str_copy(str, task->CONFIG->name);
-        str_append(str, " ");
+        str_pad(str, 8, ' ');
 
         size_t usage = os_task_usage(task);
         str_dec(str, usage, 6, ' ');

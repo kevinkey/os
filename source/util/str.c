@@ -24,6 +24,12 @@ void str_append(char str[], char const append[])
     str_copy(&str[str_len(str)], append);
 }
 
+void str_pad(char str[], size_t len, char pad)
+{
+    for (size_t i = str_len(str); i < len; i++) { str[i] = pad; }
+    str[len] = '\0';
+}
+
 void str_dec(char str[], int32_t num, uint8_t digits, char pad)
 {
     char dec[] = "0123456789";

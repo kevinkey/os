@@ -84,8 +84,8 @@ struct shell_t Shell =
             .name = "SHELL",
             .func = shell_func,
             .priority = TASK_PRIORITY_NORMAL,
-            .size = 300,
-            .stack = (uint8_t[300]){0}
+            .size = 256,
+            .stack = (uint8_t[256]){0}
         }
     },
     .CONFIG = &(struct shell_config_t){
