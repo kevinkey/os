@@ -5,8 +5,7 @@
 #ifdef SHELL_UART
 #include "shell_uart.h"
 #endif
-#include <stdio.h>
-#include <stdlib.h>
+#include "str.h"
 #include <string.h>
 
 static struct shell_cmd_t * find_cmd(struct shell_t * shell, char const * name)
@@ -36,8 +35,14 @@ static bool help_cmd(struct shell_t * shell)
     {
         LIST_FOR_EACH(&shell->cmd, struct shell_cmd_t *, cmd)
         {
-            snprintf(shell->out, SHELL_LINE_SIZE, "%-20s %s\n", cmd->NAME, cmd->DESC);
-            shell_put(shell, shell->out);
+            char str[24] = "";
+
+            str_copy(str, cmd->NAME);
+            str_pad(str, 20, ' ');
+            shell_put(shell, str);
+
+            shell_put(shell, cmd->DESC);
+            shell_put(shell, "\n");
         }
     }
 
@@ -80,6 +85,7 @@ static void read_cmd(struct shell_t * shell)
             case '\r':
                 shell->CONFIG->put('\r');
                 shell->CONFIG->put('\n');
+                shell->in[i] = '\0';
                 eos = true;
                 break;
             case '\b':
@@ -129,11 +135,14 @@ void shell_process(struct shell_t * shell)
         read_cmd(shell);
         char * line = shell->in;
 
-        if (line = strtok(line, " \t\n\r\f\v"))
+        if ((line = str_split(line, ' ')))
         {
             struct shell_cmd_t * cmd = find_cmd(shell, line);
 
-            if (cmd == NULL) { shell_put(shell, "Command not found.\n"); }
+            if (cmd == NULL)
+            {
+                shell_put(shell, "Command not found.\n");
+            }
             else
             {
                 if (cmd->FUNCTION(shell)) { /* Command was successful */ }
@@ -147,7 +156,10 @@ void shell_put(struct shell_t * shell, char const string[])
 {
     for (size_t i = 0; string[i] != '\0'; i++)
     {
-        if (string[i] == '\n') { shell->CONFIG->put('\r'); }
+        if (string[i] == '\n')
+        {
+            shell->CONFIG->put('\r');
+        }
         shell->CONFIG->put(string[i]);
     }
 }
@@ -157,7 +169,7 @@ size_t shell_find(struct shell_t * shell, char const * string[], size_t count)
     size_t index = count;
     char const * word;
 
-    if (word = shell_get(shell))
+    if ((word = shell_get(shell)))
     {
         for (size_t i = 0; i < count; i++)
         {
@@ -170,7 +182,7 @@ size_t shell_find(struct shell_t * shell, char const * string[], size_t count)
 
 char const * shell_get(struct shell_t * shell)
 {
-    return strtok(NULL, " \t\n\r\f\v");
+    return str_split(NULL, ' ');
 }
 
 bool shell_getnum(struct shell_t * shell, int_t * num)
@@ -178,7 +190,7 @@ bool shell_getnum(struct shell_t * shell, int_t * num)
     bool valid = false;
     char * word;
 
-    if (word = strtok(NULL, " \t\n\r\f\v"))
+    if ((word = str_split(NULL, ' ')))
     {
         valid = true;
         *num = 0;

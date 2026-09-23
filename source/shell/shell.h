@@ -21,7 +21,6 @@ struct shell_t
     struct os_task_t task;
     struct shell_config_t const * CONFIG;
     char in[SHELL_LINE_SIZE];
-    char out[SHELL_LINE_SIZE];
     bool shutdown;
 };
 

@@ -58,3 +58,53 @@ void str_dec(char str[], int32_t num, uint8_t digits, char pad)
 
     str_append(str, &temp[index]);
 }
+
+char * str_split(char str[], char delimiter)
+{
+    static char * prev = NULL;
+
+    char * current = (str == NULL) ? prev : str;
+
+    if (current == NULL) { return NULL; }
+
+    for (size_t i = 0; current[i] != '\0'; i++)
+    {
+        if (current[i] == delimiter)
+        {
+            current[i] = '\0';
+            prev = &current[i + 1];
+            return current;
+        }
+    }
+
+    prev = NULL;
+    return current;
+}
+
+char * str_find(char str[], char c)
+{
+    for (size_t i = 0; str[i] != '\0'; i++)
+    {
+        if (str[i] == c) { return &str[i]; }
+    }
+
+    return NULL;
+}
+
+void str_trim(char str[])
+{
+    for (size_t i = 0; str[i] != '\0'; i++ )
+    {
+        if (str_find(" \t\n\r\f\v", str[i]) == NULL)
+        {
+            if (i != 0) { str_copy(str, &str[i]); }
+            break;
+        }
+    }
+
+    for (size_t i = str_len(str); i != 0; i--)
+    {
+        if (str_find(" \t\n\r\f\v", str[i - 1]) == NULL) { break; }
+        else { str[i - 1] = '\0'; }
+    }
+}

@@ -5,7 +5,7 @@ uint8_t * stack_init(uint8_t stack[], size_t size, void (*function)(void))
 {
     uint8_t * top = &stack[size - 1];
 
-    *top = (uint8_t)function;
+    *top = (uint8_t)(uint16_t)function;
     top--;
     *top = (uint8_t)((uint16_t)function >> 8);
     top--;
