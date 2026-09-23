@@ -1,21 +1,19 @@
 #include "shell_mem.h"
 #include "mem.h"
-#include "numstr.h"
-#include <string.h>
+#include "str.h"
 
 static bool mem_cmd(struct shell_t * shell)
 {
     char str[20] = "";
 
-    strcat(str, "Total: ");
-    numstr_dec(str, MEM_SIZE, 0);
-    strcat(str, "\n");
+    str_copy(str, "Total: ");
+    str_dec(str, MEM_SIZE, 0, ' ');
+    str_append(str, "\n");
     shell_put(shell, str);
 
-    str[0] = '\0';
-    strcat(str, "Used: ");
-    numstr_dec(str, mem_used(), 0);
-    strcat(str, "\n");
+    str_copy(str, "Used: ");
+    str_dec(str, mem_used(), 0, ' ');
+    str_append(str, "\n");
     shell_put(shell, str);
 
     return true;
