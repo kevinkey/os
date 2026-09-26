@@ -80,13 +80,10 @@ static void shell_func(void);
 struct shell_t Shell =
 {
     .task = {
-        .CONFIG = &(struct task_config_t){
-            .name = "SHELL",
-            .func = shell_func,
-            .priority = TASK_PRIORITY_NORMAL,
-            .size = 256,
-            .stack = (uint8_t[256]){0}
-        }
+        .NAME = "SHELL",
+        .FUNCTION = shell_func,
+        .STACK_SIZE = 256,
+        .PRIORITY = 10,
     },
     .CONFIG = &(struct shell_config_t){
         .put = uart_put,
@@ -102,13 +99,10 @@ static void shell_func(void)
 static void Blink(void);
 
 struct os_task_t Blinky = {
-    .CONFIG = &(struct task_config_t){
-        .name = "BLINK",
-        .func = Blink,
-        .priority = TASK_PRIORITY_NORMAL,
-        .size = 128,
-        .stack = (uint8_t[128]){0}
-    }
+    .NAME = "BLINK",
+    .FUNCTION = Blink,
+    .STACK_SIZE = 128,
+    .PRIORITY = 10,
 };
 
 static void Blink(void)

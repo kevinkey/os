@@ -7,31 +7,18 @@
 #include "stack.h"
 #include "time.h"
 
-enum os_task_priority_t
-{
-    TASK_PRIORITY_LOW,
-    TASK_PRIORITY_NORMAL,
-    TASK_PRIORITY_HIGH,
-    TASK_PRIORITY_CRITICAL
-};
-
-struct task_config_t
-{
-    char * name;
-    void (*func)(void);
-    uint8_t * stack;
-    size_t size;
-    enum os_task_priority_t priority;
-};
-
 struct os_task_t
 {
     struct list_item_t item;
-    struct task_config_t * CONFIG;
     os_event_t * event;
+    char * NAME;
+    void (*FUNCTION)(void);
+    size_t STACK_SIZE;
     uint32_t timeout;
     //uint32_t count;
     uint8_t * stack;
+    uint8_t * stack_pointer;
+    uint8_t PRIORITY;
 };
 
 extern struct list_t os_tasks;

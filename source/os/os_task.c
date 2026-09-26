@@ -3,6 +3,7 @@
 #include "os.h"
 #include "stack.h"
 #include "irq.h"
+#include "mem.h"
 #include <string.h>
 
 struct list_t os_tasks;
@@ -16,16 +17,12 @@ static void idle_task(void)
     while (true);
 }
 
-static uint8_t Stack[STACK_CONTEXT_SIZE];
 static struct os_task_t Idle =
 {
-    .CONFIG = &(struct task_config_t) {
-        .name = "IDLE",
-        .func = idle_task,
-        .stack = Stack,
-        .size = STACK_CONTEXT_SIZE,
-        .priority = TASK_PRIORITY_LOW
-    }
+    .NAME = "IDLE",
+    .STACK_SIZE = STACK_CONTEXT_SIZE,
+    .FUNCTION = idle_task,
+    .PRIORITY = 0,
 };
 
 void os_task_init(struct os_task_t * task)
@@ -39,13 +36,14 @@ void os_task_init(struct os_task_t * task)
     }
 
     //task->count = 0;
+    task->stack = mem_alloc(task->STACK_SIZE);
 
-    for (size_t i = 0; i < task->CONFIG->size; i++)
+    for (size_t i = 0; i < task->STACK_SIZE; i++)
     {
         uint8_t sentinel = Sentinel[i & (sizeof(Sentinel) - 1)];
-        task->CONFIG->stack[i] = sentinel;
+        task->stack[i] = sentinel;
     }
-    task->stack = stack_init(task->CONFIG->stack, task->CONFIG->size, task->CONFIG->func);
+    task->stack_pointer = stack_init(task->stack, task->STACK_SIZE, task->FUNCTION);
 
     task->event = NULL;
     list_add(&os_tasks, (struct list_item_t *)task, LIST_ADD_HEAD);
@@ -84,28 +82,28 @@ bool os_task_ready(struct os_task_t * task)
 
 void os_task_save(struct os_task_t * task, uint8_t * stack)
 {
-    if (task != NULL) { task->stack = stack; }
+    if (task != NULL) { task->stack_pointer = stack; }
 }
 
 uint8_t * os_task_load(struct os_task_t * task)
 {
-    return task->stack;
+    return task->stack_pointer;
 }
 
 size_t os_task_usage(struct os_task_t * task)
 {
     size_t i;
 
-    for (i = 0; i < task->CONFIG->size; i++)
+    for (i = 0; i < task->STACK_SIZE; i++)
     {
         uint8_t sentinel = Sentinel[i & (sizeof(Sentinel) - 1)];
-        if (task->CONFIG->stack[i] != sentinel)
+        if (task->stack[i] != sentinel)
         {
             break;
         }
     }
 
-    return task->CONFIG->size - i;
+    return task->STACK_SIZE - i;
 }
 
 void os_task_next(void)
@@ -118,7 +116,7 @@ void os_task_next(void)
         {
             /* Task must be ready to be scheduled */
         }
-        else if((uint_t)task->CONFIG->priority > (uint_t)next->CONFIG->priority)
+        else if((uint_t)task->PRIORITY > (uint_t)next->PRIORITY)
         {
             next = task;
         }
