@@ -67,10 +67,8 @@ struct shell_t Shell =
         .STACK_SIZE = 256,
         .PRIORITY = 10,
     },
-    .CONFIG = &(struct shell_config_t){
-        .put = uart_put,
-        .get = uart_get
-    }
+    .PUT = uart_put,
+    .GET = uart_get
 };
 
 static void shell_func(void)

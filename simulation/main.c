@@ -26,10 +26,8 @@ size_t test_get(char str[], size_t length)
 
 struct shell_t Shell =
 {
-    .CONFIG = &(struct shell_config_t){
-        .put = test_put,
-        .get = test_get
-    }
+    .PUT = test_put,
+    .GET = test_get
 };
 
 int main(void)

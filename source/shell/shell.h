@@ -9,17 +9,12 @@
 #define SHELL_LINE_SIZE 80
 #endif
 
-struct shell_config_t
-{
-    void (*put)(char c);
-    char (*get)(void);
-};
-
 struct shell_t
 {
     struct list_t cmd;
     struct os_task_t task;
-    struct shell_config_t const * CONFIG;
+    void (*PUT)(char c);
+    char (*GET)(void);
     char in[SHELL_LINE_SIZE];
     bool shutdown;
 };

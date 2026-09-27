@@ -77,26 +77,26 @@ static void read_cmd(struct shell_t * shell)
     {
         bool eos = false;
 
-        shell->in[i] = shell->CONFIG->get();
+        shell->in[i] = shell->GET();
 
         switch(shell->in[i])
         {
             case '\n':
             case '\r':
-                shell->CONFIG->put('\r');
-                shell->CONFIG->put('\n');
+                shell->PUT('\r');
+                shell->PUT('\n');
                 shell->in[i] = '\0';
                 eos = true;
                 break;
             case '\b':
                 if (i > 0)
                 {
-                    shell->CONFIG->put('\b');
+                    shell->PUT('\b');
                     i--;
                 }
                 break;
             default:
-                shell->CONFIG->put(shell->in[i]);
+                shell->PUT(shell->in[i]);
                 i++;
                 break;
         }
@@ -158,9 +158,9 @@ void shell_put(struct shell_t * shell, char const string[])
     {
         if (string[i] == '\n')
         {
-            shell->CONFIG->put('\r');
+            shell->PUT('\r');
         }
-        shell->CONFIG->put(string[i]);
+        shell->PUT(string[i]);
     }
 }
 
