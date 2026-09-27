@@ -10,24 +10,6 @@
 #include "uart_atmega32.h"
 #include <string.h>
 
-void UART_TxChar(char data) {
-    // Wait until the transmit buffer (UDR) is empty and ready for new data
-    while (!(UCSRA & (1 << UDRE))) {
-        // Do nothing, just loop (this is the blocking part)
-    }
-
-    // Put data into the buffer, which sends the byte
-    UDR = data;
-}
-
-// 3. Blocking Transmit for an entire string
-void UART_TxString(const char *str) {
-    while (*str) {
-        UART_TxChar(*str);
-        str++;
-    }
-}
-
 void timer1_init(void) {
     // 1. Set CTC mode (Clear Timer on Compare Match)
     // WGM12 is located in TCCR1B
@@ -116,12 +98,6 @@ static void Blink(void)
 
 int main(void) {
 
-    // 1. Read the current status register
-    uint8_t reset_reason = MCUCSR;
-
-    // 2. Clear the flags right away so the next reset records accurately
-    MCUCSR = 0x00;
-
     // Set Pin 0 of Port B as an output
     DDRB |= (1 << PB0);
 
@@ -136,25 +112,6 @@ int main(void) {
 
     // Initialize the timer
     timer1_init();
-
-    // 3. Process the results
-    if (reset_reason & (1 << PORF)) {
-        UART_TxString("POR\r\n");
-    }
-    if (reset_reason & (1 << EXTRF)) {
-        UART_TxString("EXT\r\n");
-    }
-    if (reset_reason & (1 << BORF)) {
-        UART_TxString("BOR\r\n");
-    }
-    if (reset_reason & (1 << WDRF)) {
-        UART_TxString("WDR\r\n");
-    }
-    if (reset_reason & (1 << JTRF)) {
-        UART_TxString("JTR\r\n");
-    }
-
-    UART_TxString("Starting...\r\n");
 
     os_start();
 }

@@ -21,14 +21,6 @@ uint8_t * os_tick(uint32_t amount, uint8_t * stack)
 {
     os_task_save(os_task_current, stack);
     os_time_increment(amount);
-
-    static uint32_t last_time = 0;
-
-    if (os_time_elapsed(last_time) >= 1000)
-    {
-        last_time = os_time_now();
-    }
-
     os_task_next();
     return os_task_load(os_task_current);
 }

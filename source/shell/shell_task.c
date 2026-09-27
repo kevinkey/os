@@ -4,11 +4,11 @@
 
 static bool task_cmd(struct shell_t * shell)
 {
-    shell_put(shell, "NAME      USED   SIZE\n");
+    shell_put(shell, "NAME      USED   SIZE    COUNT\n");
 
     LIST_FOR_EACH(&os_tasks, struct os_task_t *, task)
     {
-        char str[32] = "";
+        char str[64] = "";
 
         str_copy(str, task->NAME);
         str_pad(str, 8, ' ');
@@ -18,6 +18,9 @@ static bool task_cmd(struct shell_t * shell)
         str_append(str, " ");
 
         str_dec(str, task->STACK_SIZE, 6, ' ');
+        str_append(str, " ");
+
+        str_dec(str, task->count, 8, ' ');
         str_append(str, "\n");
 
         shell_put(shell, str);

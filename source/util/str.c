@@ -33,29 +33,25 @@ void str_pad(char str[], size_t len, char pad)
 void str_dec(char str[], int32_t num, uint8_t digits, char pad)
 {
     char dec[] = "0123456789";
-    char temp[11];
+    char temp[16];
 
-    temp[10] = '\0';
-    uint8_t index = 10;
+    temp[15] = '\0';
+    int8_t index;
 
-    for (uint8_t i = 0; ((i < digits) || (digits == 0)) && (index > 0); i++)
+    for (index = 14; index > 0; index--)
     {
-        if ((num == 0) && (digits == 0))
-        {
-            break;
-        }
-        else if (num == 0)
-        {
-            temp[--index] = pad;
-        }
-        else
-        {
-            temp[--index] = dec[num % 10];
-            num /= 10;
-        }
-
+        temp[index] = dec[num % 10];
+        num /= 10;
+        if (num == 0) { break; }
     }
 
+    size_t len = sizeof(temp) - 1 - index;
+
+    if (digits > len)
+    {
+        size_t cur_len = str_len(str);
+        str_pad(str, cur_len + (digits - len), pad);
+    }
     str_append(str, &temp[index]);
 }
 

@@ -20,7 +20,7 @@ static void idle_task(void)
 static struct os_task_t Idle =
 {
     .NAME = "IDLE",
-    .STACK_SIZE = STACK_CONTEXT_SIZE,
+    .STACK_SIZE = 128,
     .FUNCTION = idle_task,
     .PRIORITY = 0,
 };
@@ -35,7 +35,7 @@ void os_task_init(struct os_task_t * task)
         os_task_current = NULL;
     }
 
-    //task->count = 0;
+    task->count = 0;
     task->stack = mem_alloc(task->STACK_SIZE);
 
     for (size_t i = 0; i < task->STACK_SIZE; i++)
@@ -125,6 +125,6 @@ void os_task_next(void)
     if (next != os_task_current)
     {
         os_task_current = next;
-        //next->count++;
+        //os_task_current->count++;
     }
 }

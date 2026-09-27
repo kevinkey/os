@@ -15,7 +15,7 @@ struct os_task_t
     void (*FUNCTION)(void);
     size_t STACK_SIZE;
     uint32_t timeout;
-    //uint32_t count;
+    uint32_t count;
     uint8_t * stack;
     uint8_t * stack_pointer;
     uint8_t PRIORITY;
